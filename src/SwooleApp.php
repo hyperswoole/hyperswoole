@@ -4,6 +4,8 @@ namespace Hyperswoole;
 use UnexpectedValueException;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
+use Hyperframework\Common\EventEmitter;
+use Hyperframework\Db\DbOperationProfiler;
 use Hyperframework\Common\NamespaceCombiner;
 use Hyperframework\Common\ClassNotFoundException;
 use Hyperframework\Web\App as Base;
@@ -18,9 +20,8 @@ class SwooleApp extends Base {
         $app  = static::createApp();
         $http = $app->createSwoole();
 
-        $http->on('start', function ($server) {
-            
-        });
+        // 添加事件监听
+        EventEmitter::addListener(new DbOperationProfiler);
 
         $http->on('request', function ($request, $response) {
             Registry::set('hyperframework.web.swoole_request', $request);
@@ -28,6 +29,10 @@ class SwooleApp extends Base {
 
             $controller = $app->createController();
             $controller->run();
+
+            $app->setRouter(null);
+            Registry::remove('hyperframework.web.request_engine');
+            Registry::remove('hyperframework.web.response_engine');
         });
 
         $http->start();
