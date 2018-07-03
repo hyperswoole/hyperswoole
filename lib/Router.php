@@ -12,7 +12,7 @@ class Router extends Base {
         });
 
         $routes->addAll([
-            'test'
+            'test/index'
         ]);
     }
 }
