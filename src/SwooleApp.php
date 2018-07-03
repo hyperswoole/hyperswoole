@@ -8,6 +8,7 @@ use Hyperframework\Common\EventEmitter;
 use Hyperframework\Db\DbOperationProfiler;
 use Hyperframework\Common\NamespaceCombiner;
 use Hyperframework\Common\ClassNotFoundException;
+
 use Hyperframework\Web\App as Base;
 
 class SwooleApp extends Base {
