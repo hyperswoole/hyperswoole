@@ -24,7 +24,7 @@ class SwooleApp extends Base {
         // 添加事件监听
         EventEmitter::addListener(new DbOperationProfiler);
 
-        $http->on('request', function ($request, $response) {
+        $http->on('request', function ($request, $response) use ($app) {
             Registry::set('hyperframework.web.swoole_request', $request);
             Registry::set('hyperframework.web.swoole_response', $response);
 
@@ -43,6 +43,6 @@ class SwooleApp extends Base {
         $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
         $port = Config::getString('hyperframework.swoole.port', 9501);
 
-        return new swoole_http_server($ip, $port);
+        return new \swoole_http_server($ip, $port);
     }
 }

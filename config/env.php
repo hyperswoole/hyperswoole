@@ -8,7 +8,7 @@ return [
     ],
 
     'hyperframework.web' => [
-        'debugger.enable'   => true,                                               
+        'debugger.enable'   => false,                                               
         'error_view.enable' => true,
     ],
 
