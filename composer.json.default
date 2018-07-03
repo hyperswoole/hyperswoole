@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Hyperframework\\": "vendor/shoufuyou-php-lib/hyperframework/hyperframework/lib",
+            "XinyongfeiAppApi\\": "lib",
+            "Shoufuyou\\": "vendor/shoufuyou-php-lib/shoufuyou",
+            "ShoufuyouBizCommon\\":"vendor/shoufuyou-php-lib/biz-common"
+         }
+     },
+     "repositories": [
+         {
+             "packagist": false
+         }
+    ]
+}
