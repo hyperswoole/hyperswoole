@@ -6,8 +6,12 @@ use Closure;
 use Exception;
 use Throwable;
 use UnexpectedValueException;
+use Hyperframework\Web\Request;
+use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
+use Hyperframework\Web\CsrfProtection;
+use Hyperframework\Web\ViewPathBuilder;
 use Hyperframework\Common\InvalidOperationException;
 use Hyperframework\Common\ClassNotFoundException;
 

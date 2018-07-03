@@ -8,7 +8,7 @@ use Hyperframework\Common\NamespaceCombiner;
 use Hyperframework\Common\ClassNotFoundException;
 use Hyperframework\Web\App as Base;
 
-class App extends Base {
+class SwooleApp extends Base {
     private $router;
 
     /**
@@ -28,7 +28,7 @@ class App extends Base {
 
             $controller = $app->createController();
             $controller->run();
-        }
+        });
 
         $http->start();
     }
