@@ -1,7 +1,7 @@
 <?php
-namespace Hyperswoole\Controllers;
+namespace HyperswooleTest\Controllers;
 
-use Hyperswoole\Web\SwooleController;
+use Hyperswoole\SwooleController;
 
 class BaseController extends SwooleController {
     public function __construct($app) {

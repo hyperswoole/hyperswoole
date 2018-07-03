@@ -1,6 +1,6 @@
 <?php
 
-namespace Hyperswoole;
+namespace HyperswooleTest;
 
 use Hyperframework\Web\Router as Base;
 

@@ -1,5 +1,5 @@
 <?php
-namespace Hyperswoole\Controllers;
+namespace HyperswooleTest\Controllers;
 
 class TestController extends BaseController {
 	public function onIndexAction() {

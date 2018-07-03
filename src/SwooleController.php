@@ -1,5 +1,5 @@
 <?php
-namespace Hyperswoole\Web;
+namespace Hyperswoole;
 
 use Generator;
 use Closure;
