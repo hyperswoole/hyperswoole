@@ -3,7 +3,8 @@ namespace Hyperswoole;
 
 class SwooleResponseEngine {
     private $headers;
-    private $statusCode = 200;
+    private $statusCode   = 200;
+    private $responseData = '';
 
     /**
      * @param string $string
@@ -62,6 +63,14 @@ class SwooleResponseEngine {
         return $this->statusCode;
     }
 
+    public function getResponseData() {
+        return $this->responseData;
+    }
+
+    public function setResponseData($responseData) {
+        $this->responseData = $responseData;
+    }
+
     /**
      * @param string $name
      * @param string $value
@@ -107,13 +116,28 @@ class SwooleResponseEngine {
      */
     public function headersSent() {
         return false;
-        //return headers_sent();
+    }
+
+    public function write($data) {
+        $this->responseData .= $data;
     }
 
     public function headersInitialize() {
         foreach ($this->headers as $key => $value) {
             $this->getSwooleResponse()->header($key, $value, false);
         }
+    }
+
+    public function responseDataSend() {
+        if (!empty($this->responseData)) {
+            $this->getSwooleResponse()->write($this->responseData);
+        }
+    }
+
+    public function end() {
+        $this->headersInitialize();
+        $this->responseDataSend();
+        $this->getSwooleResponse()->end();
     }
 
     private function getSwooleResponse() {

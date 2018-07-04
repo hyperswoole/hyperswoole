@@ -2,6 +2,7 @@
 namespace Hyperswoole;
 
 use UnexpectedValueException;
+use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;
@@ -30,6 +31,8 @@ class SwooleApp extends Base {
 
             $controller = $app->createController();
             $controller->run();
+
+            Response::getEngine()->end();
 
             $app->setRouter(null);
             Registry::remove('hyperframework.web.request_engine');

@@ -246,7 +246,8 @@ abstract class SwooleController {
         if (is_array($response)) {
             $response = json_encode($response, JSON_UNESCAPED_UNICODE);
         }
-        $this->getSwooleResponse()->end($response);
+        
+        Response::getEngine()->write($response);
     }
 
     /**
