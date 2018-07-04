@@ -1,6 +1,8 @@
 <?php
 namespace Hyperswoole;
 
+use Hyperframework\Common\Registry;
+
 class SwooleResponseEngine {
     private $headers;
     private $statusCode   = 200;
@@ -15,7 +17,11 @@ class SwooleResponseEngine {
     public function setHeader(
         $string, $shouldReplace = true, $responseCode = null
     ) {
-        list($key, $value)   = explode(';', $string);
+        if ($string == 'HTTP/1.1 500 Internal Server Error') {
+            return $this->setStatusCode($responseCode);
+        }
+
+        list($key, $value)   = explode(':', $string);
         $this->headers[$key] = $value;
 
         if (!is_null($responseCode)) {
