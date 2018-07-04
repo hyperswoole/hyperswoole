@@ -1,9 +1,9 @@
 <?php
 namespace Hyperswoole;
 
-use Hyperframework\Common\Config;
+use Hyperframework\Web\Response;
 use Hyperframework\Common\Error;
-use Hyperframework\Common\Response;
+use Hyperframework\Common\Config;
 use Hyperframework\Web\ErrorHandler as Base;
 
 class SwooleErrorHandler extends Base {
