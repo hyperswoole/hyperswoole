@@ -4,9 +4,15 @@ namespace Hyperswoole;
 use Hyperframework\Common\Registry;
 
 class SwooleResponseEngine {
-    private $headers      = [];
-    private $statusCode   = 200;
-    private $responseData = '';
+    private $headers         = [];
+    private $statusCode      = 200;
+    private $responseData    = '';
+    private $cookie          = [];
+    private $swooleResponse;
+
+    public function __construct() {
+        $this->swooleResponse = $this->getSwooleResponse();
+    }
 
     /**
      * @param string $string
@@ -59,7 +65,6 @@ class SwooleResponseEngine {
      */
     public function setStatusCode($statusCode) {
         $this->statusCode = $statusCode;
-        $this->getSwooleResponse()->status($statusCode);
     }
 
     /**
@@ -84,42 +89,12 @@ class SwooleResponseEngine {
      * @return void
      */
     public function setCookie($name, $value, $options = []) {
-        $expire = 0;
-        $path = '/';
-        $domain = null;
-        $secure = false;
-        $httpOnly = false;
-        if ($options !== null) {
-            foreach ($options as $optionKey => $optionValue) {
-                switch($optionKey) {
-                    case 'expire':
-                        $expire = $optionValue;
-                        break;
-                    case 'path':
-                        $path = $optionValue;
-                        break;
-                    case 'domain':
-                        $domain = $optionValue;
-                        break;
-                    case 'secure':
-                        $secure = $optionValue;
-                        break;
-                    case 'httponly':
-                        $httpOnly = $optionValue;
-                        break;
-                    default:
-                        throw new CookieException(
-                            "Option '$optionKey' is not allowed."
-                        );
-                }
-            }
-        }
-        $this->getSwooleResponse()->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        $cookie[$name] = [
+            'value'   => $value,
+            'options' => $options
+        ];
     }
 
-    /**
-     * @return bool
-     */
     public function headersSent() {
         return false;
     }
@@ -128,22 +103,68 @@ class SwooleResponseEngine {
         $this->responseData .= $data;
     }
 
-    public function headersInitialize() {
+    public function initializeHeaders() {
         foreach ($this->headers as $key => $value) {
-            $this->getSwooleResponse()->header($key, $value, false);
+            $this->swooleResponse->header($key, $value, false);
         }
     }
 
-    public function responseDataSend() {
+    public function initializeStatusCode() {
+        $this->swooleResponse->status($this->statusCode);
+    }
+
+    public function initializeCookie() {
+        foreach ($this->cookie as $name => $valueOptions) {
+            $expire   = 0;
+            $path     = '/';
+            $domain   = null;
+            $secure   = false;
+            $httpOnly = false;
+
+            $value    = $valueOptions['value'];
+            $options  = $valueOptions['options'];
+
+            if ($options !== null) {
+                foreach ($options as $optionKey => $optionValue) {
+                    switch($optionKey) {
+                        case 'expire':
+                            $expire = $optionValue;
+                            break;
+                        case 'path':
+                            $path = $optionValue;
+                            break;
+                        case 'domain':
+                            $domain = $optionValue;
+                            break;
+                        case 'secure':
+                            $secure = $optionValue;
+                            break;
+                        case 'httponly':
+                            $httpOnly = $optionValue;
+                            break;
+                        default:
+                            throw new CookieException(
+                                "Option '$optionKey' is not allowed."
+                            );
+                    }
+                }
+            }
+            $this->swooleResponse->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+        }
+    }
+
+    public function initializeResponseData() {
         if (!empty($this->responseData)) {
-            $this->getSwooleResponse()->write($this->responseData);
+            $this->swooleResponse->write($this->responseData);
         }
     }
 
-    public function end() {
-        $this->headersInitialize();
-        $this->responseDataSend();
-        $this->getSwooleResponse()->end();
+    public function end() {        
+        $this->initializeHeaders();
+        $this->initializeStatusCode();
+        $this->initializeCookie();
+        $this->initializeResponseData();
+        $this->swooleResponse->end();
     }
 
     private function getSwooleResponse() {
