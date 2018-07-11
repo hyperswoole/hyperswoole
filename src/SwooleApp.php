@@ -48,7 +48,7 @@ class SwooleApp extends Base {
 
         $openHttp2Protocol = Config::getString('hyperframework.swoole.open_http2_protocol', false);
 
-        if ($openHttp2Protocol == false) {
+        if ($openHttp2Protocol === false) {
             return new \swoole_http_server($ip, $port);            
         }
 

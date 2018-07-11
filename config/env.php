@@ -23,4 +23,12 @@ return [
         'expire' => 3600,
         'pwd'    => '1hq234hq'
     ],
+
+    'hyperframework.swoole' => [
+        'ip'                  => '0.0.0.0',
+        'port'                => 9501,
+        'ssl_cert_file'       => '../data/server.crt',
+        'ssl_key_file'        => '../data/server.key',
+        'open_http2_protocol' => true,
+    ],
 ];
