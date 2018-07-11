@@ -52,7 +52,7 @@ class SwooleApp extends Base {
             return new \swoole_http_server($ip, $port);            
         }
 
-        $http = new swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
+        $http = new \swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
 
         $sslCertFile = Config::getString('hyperframework.swoole.ssl_cert_file');
         $sslKeyFile  = Config::getString('hyperframework.swoole.ssl_key_file');
