@@ -46,6 +46,23 @@ class SwooleApp extends Base {
         $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
         $port = Config::getString('hyperframework.swoole.port', 9501);
 
-        return new \swoole_http_server($ip, $port);
+        $openHttp2Protocol = Config::getString('hyperframework.swoole.open_http2_protocol', false);
+
+        if ($openHttp2Protocol == false) {
+            return new \swoole_http_server($ip, $port);            
+        }
+
+        $http = new swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
+
+        $sslCertFile = Config::getString('hyperframework.swoole.ssl_cert_file');
+        $sslKeyFile  = Config::getString('hyperframework.swoole.ssl_key_file');
+
+        $http->set([
+            'ssl_cert_file' => $sslCertFile,
+            'ssl_key_file' => $sslKeyFile,
+            'open_http2_protocol' => true,
+        ]);
+
+        return $http;
     }
 }
