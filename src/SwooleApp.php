@@ -31,14 +31,14 @@ class SwooleApp extends Base {
             try {
                 $controller = $app->createController();
                 $controller->run();
-                $app->setRouter(null);                
             } catch (\Exception $e) {
                 $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
             }
 
-            Response::getEngine()->end();
+            $app->setRouter(null);
+            Response::getEngine()->end();            
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
         });
