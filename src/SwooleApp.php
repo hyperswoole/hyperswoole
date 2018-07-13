@@ -30,12 +30,17 @@ class SwooleApp extends Base {
             Registry::set('hyperframework.web.swoole_request_' . Coroutine::getuid(), $request);
             Registry::set('hyperframework.web.swoole_response_' . Coroutine::getuid(), $response);
 
-            $controller = $app->createController();
-            $controller->run();
+            try {
+                $controller = $app->createController();
+                $controller->run();
 
-            Response::getEngine()->end();
+                Response::getEngine()->end();
 
-            $app->setRouter(null);
+                $app->setRouter(null);                
+            } catch (\Exception $e) {
+
+            }
+            
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
         });
