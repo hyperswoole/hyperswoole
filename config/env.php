@@ -29,6 +29,6 @@ return [
         'port'                => 9501,
         'ssl_cert_file'       => '../data/server.crt',
         'ssl_key_file'        => '../data/server.key',
-        'open_http2_protocol' => true,
+        'open_http2_protocol' => false,
     ],
 ];
