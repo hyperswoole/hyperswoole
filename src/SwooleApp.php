@@ -1,6 +1,7 @@
 <?php
 namespace Hyperswoole;
 
+use Swoole\Coroutine;
 use UnexpectedValueException;
 use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
