@@ -25,7 +25,9 @@ class SwooleResponseEngine {
         $string, $shouldReplace = true, $responseCode = null
     ) {
         if ($string == 'HTTP/1.1 500 Internal Server Error') {
-            return $this->setStatusCode($responseCode);
+            $this->setStatusCode(500);
+            $this->setResponseData($string);
+            return;
         }
 
         list($key, $value)   = explode(':', $string);

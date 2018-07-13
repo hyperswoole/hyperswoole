@@ -38,9 +38,9 @@ class SwooleApp extends Base {
 
                 $app->setRouter(null);                
             } catch (\Exception $e) {
-
+                Response::getEngine()->end();
             }
-            
+
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
         });
