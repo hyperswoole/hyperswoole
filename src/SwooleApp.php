@@ -47,7 +47,7 @@ class SwooleApp extends Base {
         $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
         $port = Config::getString('hyperframework.swoole.port', 9501);
 
-        $openHttp2Protocol = Config::getString('hyperframework.swoole.open_http2_protocol', false);
+        $openHttp2Protocol = Config::getBool('hyperframework.swoole.open_http2_protocol', false);
 
         if ($openHttp2Protocol === false) {
             return new \swoole_http_server($ip, $port);            
