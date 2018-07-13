@@ -2,15 +2,11 @@
 namespace Hyperswoole;
 
 use Swoole\Coroutine;
-use UnexpectedValueException;
 use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
-use Hyperframework\Web\HttpException;
 use Hyperframework\Common\EventEmitter;
 use Hyperframework\Db\DbOperationProfiler;
-use Hyperframework\Common\NamespaceCombiner;
-use Hyperframework\Common\ClassNotFoundException;
 
 use Hyperframework\Web\App as Base;
 
@@ -31,26 +27,14 @@ class SwooleApp extends Base {
             Registry::set('hyperframework.web.swoole_request_' . Coroutine::getuid(), $request);
             Registry::set('hyperframework.web.swoole_response_' . Coroutine::getuid(), $response);
 
-            try {
-                $controller = $app->createController();
-                $controller->run();
+            $controller = $app->createController();
+            $controller->run();
 
-                Response::getEngine()->end();
+            Response::getEngine()->end();
 
-                $app->setRouter(null);                
-            } catch (\Exception $e) {
-                Response::removeHeaders();
-                
-                if ($e instanceof HttpException) {
-                    Response::setStatusCode($e->getStatusCode());
-                    Response::write($e->getStatusCode() . ' ' . $e->getStatusReasonPhrase());
-                } else {
-                    Response::setStatusCode('500');
-                    Response::write('500 Internal Server Error');
-                }
+            $app->setRouter(null);
 
-                Response::getEngine()->end();
-            }
+            Response::getEngine()->end();
 
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
