@@ -5,6 +5,7 @@ use Swoole\Coroutine;
 use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
+use Hyperframework\Web\ErrorHandler;
 use Hyperframework\Common\EventEmitter;
 use Hyperframework\Db\DbOperationProfiler;
 
@@ -30,12 +31,14 @@ class SwooleApp extends Base {
             try {
                 $controller = $app->createController();
                 $controller->run();
-                $app->setRouter(null);
-                Response::getEngine()->end();
+                $app->setRouter(null);                
             } catch (\Exception $e) {
-
+                $errorHandler = new ErrorHandler($e);
+                $errorHandler->setError($e);
+                $errorHandler->handle();
             }
 
+            Response::getEngine()->end();
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
         });
