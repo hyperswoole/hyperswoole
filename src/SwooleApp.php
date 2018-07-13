@@ -33,7 +33,7 @@ class SwooleApp extends Base {
                 $controller->run();
                 $app->setRouter(null);                
             } catch (\Exception $e) {
-                $errorHandler = new ErrorHandler($e);
+                $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
             }

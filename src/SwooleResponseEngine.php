@@ -24,10 +24,15 @@ class SwooleResponseEngine {
     public function setHeader(
         $string, $shouldReplace = true, $responseCode = null
     ) {
-        if ($string == 'HTTP/1.1 500 Internal Server Error') {
-            $this->setStatusCode(500);
-            $this->setResponseData($string);
+        if (strpos($string, ":") === false) {
+            list($protocol, $statusCode, $message) = explode(' ', $string);
+            $this->setStatusCode($statusCode);
+            $this->setResponseData($statusCode . ' ' . $message);
             return;
+        }
+
+        if ($string == 'HTTP/1.1 500 Internal Server Error') {
+
         }
 
         list($key, $value)   = explode(':', $string);
