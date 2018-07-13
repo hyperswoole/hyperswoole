@@ -31,10 +31,6 @@ class SwooleResponseEngine {
             return;
         }
 
-        if ($string == 'HTTP/1.1 500 Internal Server Error') {
-
-        }
-
         list($key, $value)   = explode(':', $string);
         $this->headers[$key] = $value;
 
