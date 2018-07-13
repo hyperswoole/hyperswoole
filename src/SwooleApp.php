@@ -6,6 +6,7 @@ use UnexpectedValueException;
 use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
+use Hyperframework\Web\HttpException;
 use Hyperframework\Common\EventEmitter;
 use Hyperframework\Db\DbOperationProfiler;
 use Hyperframework\Common\NamespaceCombiner;
@@ -39,13 +40,13 @@ class SwooleApp extends Base {
                 $app->setRouter(null);                
             } catch (\Exception $e) {
                 Response::removeHeaders();
-                $error = $this->getError();
-                if ($error instanceof HttpException) {
-                    foreach ($error->getHttpHeaders() as $header) {
-                        Response::setHeader($header);
-                    }
+                
+                if ($e instanceof HttpException) {
+                    Response::setStatusCode($e->getStatusCode());
+                    Response::write($e->getStatusCode() . ' ' . $e->getStatusReasonPhrase());
                 } else {
-                    Response::setHeader('HTTP/1.1 500 Internal Server Error');
+                    Response::setStatusCode('500');
+                    Response::write('500 Internal Server Error');
                 }
 
                 Response::getEngine()->end();
@@ -57,7 +58,7 @@ class SwooleApp extends Base {
 
         $http->start();
     }
-    
+
     public function createSwoole() {
         $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
         $port = Config::getString('hyperframework.swoole.port', 9501);
