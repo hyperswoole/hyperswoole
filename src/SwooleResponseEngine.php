@@ -165,8 +165,8 @@ class SwooleResponseEngine {
         $this->initializeStatusCode();
         $this->initializeCookie();
 
-        Registry::get('hyperframework.web.swoole_request_' . Coroutine::getuid());
-        Registry::get('hyperframework.web.swoole_response_' . Coroutine::getuid());
+        Registry::remove('hyperframework.web.swoole_request_' . Coroutine::getuid());
+        Registry::remove('hyperframework.web.swoole_response_' . Coroutine::getuid());
 
         $this->swooleResponse->end($this->responseData);
     }
