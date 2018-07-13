@@ -38,6 +38,16 @@ class SwooleApp extends Base {
 
                 $app->setRouter(null);                
             } catch (\Exception $e) {
+                Response::removeHeaders();
+                $error = $this->getError();
+                if ($error instanceof HttpException) {
+                    foreach ($error->getHttpHeaders() as $header) {
+                        Response::setHeader($header);
+                    }
+                } else {
+                    Response::setHeader('HTTP/1.1 500 Internal Server Error');
+                }
+
                 Response::getEngine()->end();
             }
 
@@ -47,7 +57,7 @@ class SwooleApp extends Base {
 
         $http->start();
     }
-
+    
     public function createSwoole() {
         $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
         $port = Config::getString('hyperframework.swoole.port', 9501);
