@@ -17,6 +17,8 @@ use Hyperframework\Common\InvalidOperationException;
 use Hyperframework\Common\ClassNotFoundException;
 
 class SwooleController extends Controller {
+    private $actionResult;
+    
     /**
      * @return void
      */
