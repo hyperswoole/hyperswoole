@@ -17,13 +17,11 @@ use Hyperframework\Common\InvalidOperationException;
 use Hyperframework\Common\ClassNotFoundException;
 
 class SwooleController extends Controller {
-    private $actionResult;
-    
     /**
      * @return void
      */
     public function renderView() {
-        $response = $this->actionResult;
+        $response = $this->getActionResult();
         if (is_array($response)) {
             $response = json_encode($response, JSON_UNESCAPED_UNICODE);
         }
