@@ -26,8 +26,8 @@ class SwooleApp extends Base {
         EventEmitter::addListener(new DbOperationProfiler);
 
         $http->on('request', function ($request, $response) use ($app) {
-            Registry::set('hyperframework.web.swoole_request', $request);
-            Registry::set('hyperframework.web.swoole_response', $response);
+            Registry::set('hyperframework.web.swoole_request_' . Coroutine::getuid(), $request);
+            Registry::set('hyperframework.web.swoole_response_' . Coroutine::getuid(), $response);
 
             $controller = $app->createController();
             $controller->run();

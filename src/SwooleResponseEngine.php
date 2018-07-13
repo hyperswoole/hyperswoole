@@ -1,6 +1,7 @@
 <?php
 namespace Hyperswoole;
 
+use Swoole\Coroutine;
 use Hyperframework\Common\Registry;
 
 class SwooleResponseEngine {
@@ -163,10 +164,14 @@ class SwooleResponseEngine {
         $this->initializeHeaders();
         $this->initializeStatusCode();
         $this->initializeCookie();
+
+        Registry::get('hyperframework.web.swoole_request_' . Coroutine::getuid());
+        Registry::get('hyperframework.web.swoole_response_' . Coroutine::getuid());
+
         $this->swooleResponse->end($this->responseData);
     }
 
     private function getSwooleResponse() {
-        return Registry::get('hyperframework.web.swoole_response');
+        return Registry::get('hyperframework.web.swoole_response_' . Coroutine::getuid());
     }
 }
