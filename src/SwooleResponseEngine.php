@@ -163,7 +163,6 @@ class SwooleResponseEngine {
         $this->initializeHeaders();
         $this->initializeStatusCode();
         $this->initializeCookie();
-        //$this->initializeResponseData();
         $this->swooleResponse->end($this->responseData);
     }
 
