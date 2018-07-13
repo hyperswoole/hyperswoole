@@ -27,7 +27,6 @@ class SwooleResponseEngine {
         if (strpos($string, ":") === false) {
             list($protocol, $statusCode, $message) = explode(' ', $string);
             $this->setStatusCode($statusCode);
-            $this->setResponseData($statusCode . ' ' . $message);
             return;
         }
 
