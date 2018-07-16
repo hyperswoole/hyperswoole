@@ -121,7 +121,7 @@ class SwooleResponseEngine {
         if (!isset($this->responseData[$coroutineId])) {
             $this->responseData[$coroutineId] = '';
         }
-        
+
         $this->responseData[$coroutineId] .= $data;
     }
 
@@ -187,9 +187,6 @@ class SwooleResponseEngine {
         $this->initializeHeaders();
         $this->initializeStatusCode();
         $this->initializeCookie();
-
-        Registry::remove('hyperswoole.request_' . $this->getCoroutineId());
-        Registry::remove('hyperswoole.response_' . $this->getCoroutineId());
 
         $this->getSwooleResponse()->end($this->getResponseData());
     }

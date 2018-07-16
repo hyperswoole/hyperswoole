@@ -23,8 +23,12 @@ class SwooleApp extends Base {
         EventEmitter::addListener(new DbOperationProfiler);
 
         $http->on('request', function ($request, $response) use ($app) {
-            Registry::set('hyperswoole.request_' . Coroutine::getuid(), $request);
-            Registry::set('hyperswoole.response_' . Coroutine::getuid(), $response);
+            $coroutineId = Coroutine::getuid();
+            $requestKey  = 'hyperswoole.request_' . $coroutineId;
+            $responseKey = 'hyperswoole.response_' . $coroutineId;
+
+            Registry::set($requestKey, $request);
+            Registry::set($responseKey, $response);
 
             try {
                 $controller = $app->createController();
@@ -38,8 +42,8 @@ class SwooleApp extends Base {
             $app->setRouter(null);
             SwooleResponse::end();
 
-            Registry::remove('hyperframework.web.request_engine');
-            Registry::remove('hyperframework.web.response_engine');
+            Registry::remove($requestKey);
+            Registry::remove($responseKey);
         });
 
         $http->start();
