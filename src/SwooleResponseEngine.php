@@ -138,7 +138,7 @@ class SwooleResponseEngine {
 
     public function initializeCookie() {
         $coroutineId   = $this->getCoroutineId();
-        $currentCookie = $this->cookie[$coroutineId];
+        $currentCookie = isset($this->cookie[$coroutineId]) ? $this->cookie[$coroutineId] : [];
 
         foreach ($currentCookie as $name => $valueOptions) {
             $expire   = 0;
