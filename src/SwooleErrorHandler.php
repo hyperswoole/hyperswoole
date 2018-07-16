@@ -1,7 +1,6 @@
 <?php
 namespace Hyperswoole;
 
-use Hyperframework\Web\Response;
 use Hyperframework\Web\ErrorHandler as Base;
 
 class SwooleErrorHandler extends Base {
@@ -16,13 +15,13 @@ class SwooleErrorHandler extends Base {
      * @return string
      */
     protected function getOutput() {
-        return Response::getEngine()->getResponseData();
+        return SwooleResponse::getResponseData();
     }
 
     /**
      * @return void
      */
-    protected function flushInnerOutputBuffer() {
-    	Response::getEngine()->setResponseData('');
+    protected function deleteOutput() {
+		SwooleResponse::setResponseData('');
     }
 }

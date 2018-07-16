@@ -5,15 +5,10 @@ use Swoole\Coroutine;
 use Hyperframework\Common\Registry;
 
 class SwooleResponseEngine {
-    private $headers         = [];
-    private $statusCode      = 200;
-    private $responseData    = '';
-    private $cookie          = [];
-    private $swooleResponse;
-
-    public function __construct() {
-        $this->swooleResponse = $this->getSwooleResponse();
-    }
+    private $headers      = [];
+    private $statusCode   = [];
+    private $responseData = [];
+    private $cookie       = [];
 
     /**
      * @param string $string
@@ -24,14 +19,15 @@ class SwooleResponseEngine {
     public function setHeader(
         $string, $shouldReplace = true, $responseCode = null
     ) {
+        $coroutineId = $this->getCoroutineId();
+
         if (strpos($string, ":") === false) {
             list($protocol, $statusCode, $message) = explode(' ', $string);
-            $this->setStatusCode($statusCode);
-            return;
+            return $this->setStatusCode($statusCode);
         }
 
         list($key, $value)   = explode(':', $string);
-        $this->headers[$key] = $value;
+        $this->headers[$coroutineId][$key] = $value;
 
         if (!is_null($responseCode)) {
             $this->setStatusCode($responseCode);
@@ -42,7 +38,11 @@ class SwooleResponseEngine {
      * @return string[]
      */
     public function getHeaders() {
-        return $this->headers;
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->headers[$coroutineId])) {
+            return $this->headers[$coroutineId];            
+        }
+        return [];
     }
 
     /**
@@ -50,8 +50,9 @@ class SwooleResponseEngine {
      * @return void
      */
     public function removeHeader($name) {
-        if (isset($this->headers[$name])) {
-            unset($this->headers[$name]);
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->headers[$coroutineId][$name])) {
+            unset($this->headers[$coroutineId][$name]);
         }
     }
 
@@ -59,7 +60,8 @@ class SwooleResponseEngine {
      * @return void
      */
     public function removeHeaders() {
-        $this->headers = [];
+        $coroutineId = $this->getCoroutineId();
+        $this->headers[$coroutineId] = [];
     }
 
     /**
@@ -67,22 +69,32 @@ class SwooleResponseEngine {
      * @return void
      */
     public function setStatusCode($statusCode) {
-        $this->statusCode = $statusCode;
+        $coroutineId = $this->getCoroutineId();
+        $this->statusCode[$coroutineId] = $statusCode;
     }
 
     /**
      * @return int
      */
     public function getStatusCode() {
-        return $this->statusCode;
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->statusCode[$coroutineId])) {
+            return $this->statusCode[$coroutineId];            
+        }
+        return '200';
     }
 
     public function getResponseData() {
-        return $this->responseData;
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->responseData[$coroutineId])) {
+            return $this->responseData[$coroutineId];            
+        }
+        return '';
     }
 
     public function setResponseData($responseData) {
-        $this->responseData = $responseData;
+        $coroutineId = $this->getCoroutineId();
+        $this->responseData[$coroutineId] = $responseData;
     }
 
     /**
@@ -92,7 +104,9 @@ class SwooleResponseEngine {
      * @return void
      */
     public function setCookie($name, $value, $options = []) {
-        $cookie[$name] = [
+        $coroutineId = $this->getCoroutineId();
+
+        $cookie[$coroutineId][$name] = [
             'value'   => $value,
             'options' => $options
         ];
@@ -103,21 +117,30 @@ class SwooleResponseEngine {
     }
 
     public function write($data) {
-        $this->responseData .= $data;
+        $coroutineId = $this->getCoroutineId();
+        if (!isset($this->responseData[$coroutineId])) {
+            $this->responseData[$coroutineId] = '';
+        }
+        
+        $this->responseData[$coroutineId] .= $data;
     }
 
     public function initializeHeaders() {
-        foreach ($this->headers as $key => $value) {
-            $this->swooleResponse->header($key, $value, false);
+        $headers = $this->getHeaders();
+        foreach ($headers as $key => $value) {
+            $this->getSwooleResponse()->header($key, $value, false);
         }
     }
 
     public function initializeStatusCode() {
-        $this->swooleResponse->status($this->statusCode);
+        $this->getSwooleResponse()->status($this->getStatusCode());
     }
 
     public function initializeCookie() {
-        foreach ($this->cookie as $name => $valueOptions) {
+        $coroutineId   = $this->getCoroutineId();
+        $currentCookie = $this->cookie[$coroutineId];
+
+        foreach ($currentCookie as $name => $valueOptions) {
             $expire   = 0;
             $path     = '/';
             $domain   = null;
@@ -152,14 +175,12 @@ class SwooleResponseEngine {
                     }
                 }
             }
-            $this->swooleResponse->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+            $this->getSwooleResponse()->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
         }
     }
 
     public function initializeResponseData() {
-        if (!empty($this->responseData)) {
-            $this->swooleResponse->write($this->responseData);
-        }
+        $this->getSwooleResponse()->write($this->getResponseData());
     }
 
     public function end() {
@@ -167,13 +188,17 @@ class SwooleResponseEngine {
         $this->initializeStatusCode();
         $this->initializeCookie();
 
-        Registry::remove('hyperframework.web.swoole_request_' . Coroutine::getuid());
-        Registry::remove('hyperframework.web.swoole_response_' . Coroutine::getuid());
+        Registry::remove('hyperswoole.request_' . $this->getCoroutineId());
+        Registry::remove('hyperswoole.response_' . $this->getCoroutineId());
 
-        $this->swooleResponse->end($this->responseData);
+        $this->getSwooleResponse()->end($this->getResponseData());
     }
 
     private function getSwooleResponse() {
-        return Registry::get('hyperframework.web.swoole_response_' . Coroutine::getuid());
+        return Registry::get('hyperswoole.response_' . $this->getCoroutineId());
+    }
+
+    private function getCoroutineId() {
+        return Coroutine::getuid();
     }
 }

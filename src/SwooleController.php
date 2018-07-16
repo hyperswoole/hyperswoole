@@ -1,7 +1,6 @@
 <?php
 namespace Hyperswoole;
 
-use Hyperframework\Web\Response;
 use Hyperframework\Web\Controller;
 use Hyperframework\Common\Registry;
 
@@ -15,10 +14,6 @@ class SwooleController extends Controller {
             $response = json_encode($response, JSON_UNESCAPED_UNICODE);
         }
         
-        Response::write($response);
-    }
-
-    private function getSwooleResponse() {
-        return Registry::get('hyperframework.web.swoole_response');
+        SwooleResponse::write($response);
     }
 }

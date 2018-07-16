@@ -2,7 +2,6 @@
 namespace Hyperswoole;
 
 use Swoole\Coroutine;
-use Hyperframework\Web\Response;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;
@@ -24,8 +23,8 @@ class SwooleApp extends Base {
         EventEmitter::addListener(new DbOperationProfiler);
 
         $http->on('request', function ($request, $response) use ($app) {
-            Registry::set('hyperframework.web.swoole_request_' . Coroutine::getuid(), $request);
-            Registry::set('hyperframework.web.swoole_response_' . Coroutine::getuid(), $response);
+            Registry::set('hyperswoole.request_' . Coroutine::getuid(), $request);
+            Registry::set('hyperswoole.response_' . Coroutine::getuid(), $response);
 
             try {
                 $controller = $app->createController();
@@ -37,7 +36,8 @@ class SwooleApp extends Base {
             }
 
             $app->setRouter(null);
-            Response::getEngine()->end();            
+            SwooleResponse::end();
+
             Registry::remove('hyperframework.web.request_engine');
             Registry::remove('hyperframework.web.response_engine');
         });
@@ -46,10 +46,10 @@ class SwooleApp extends Base {
     }
 
     public function createSwoole() {
-        $ip   = Config::getString('hyperframework.swoole.ip', '127.0.0.1');
-        $port = Config::getString('hyperframework.swoole.port', 9501);
+        $ip   = Config::getString('hyperswoole.ip', '127.0.0.1');
+        $port = Config::getString('hyperswoole.port', 9501);
 
-        $openHttp2Protocol = Config::getBool('hyperframework.swoole.open_http2_protocol', false);
+        $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
 
         if ($openHttp2Protocol === false) {
             return new \swoole_http_server($ip, $port);            
@@ -57,12 +57,12 @@ class SwooleApp extends Base {
 
         $http = new \swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
 
-        $sslCertFile = Config::getString('hyperframework.swoole.ssl_cert_file');
-        $sslKeyFile  = Config::getString('hyperframework.swoole.ssl_key_file');
+        $sslCertFile = Config::getString('hyperswoole.ssl_cert_file');
+        $sslKeyFile  = Config::getString('hyperswoole.ssl_key_file');
 
         $http->set([
             'ssl_cert_file' => $sslCertFile,
-            'ssl_key_file' => $sslKeyFile,
+            'ssl_key_file'  => $sslKeyFile,
             'open_http2_protocol' => true,
         ]);
 

@@ -6,17 +6,13 @@ use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 
 class SwooleRequestEngine {
-    private $method;
-    private $path;
-    private $headers;
     private $bodyParams;
 
     /**
      * @return string
      */
     public function getMethod() {
-        $this->method = $this->getSwooleRequest()->server['request_method'];
-        return $this->method;
+        return $this->getSwooleRequest()->server['request_method'];
     }
 
     /**
@@ -29,8 +25,8 @@ class SwooleRequestEngine {
         } elseif (strpos($path, '//') !== false) {
             $path = preg_replace('#/{2,}#', '/', $path);
         }
-        $this->path = '/' . trim($path, '/');
-        return $this->path;
+        $path = '/' . trim($path, '/');
+        return $path;
     }
 
     /**
@@ -62,8 +58,7 @@ class SwooleRequestEngine {
      * @return string[]
      */
     public function getHeaders() {
-        $this->headers = $this->getSwooleRequest()->header;
-        return $this->headers;
+        return $this->getSwooleRequest()->header;
     }
 
     /**
@@ -77,8 +72,12 @@ class SwooleRequestEngine {
      * @return array
      */
     public function getBodyParams() {
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->bodyParams[$coroutineId])) {
+            return $this->bodyParams[$coroutineId];
+        }
         $this->initializeBodyParams();
-        return $this->bodyParams;
+        return $this->bodyParams[$coroutineId];
     }
 
     /**
@@ -156,7 +155,8 @@ class SwooleRequestEngine {
      * @return void
      */
     private function initializeBodyParams() {
-        $this->bodyParams = [];
+        $coroutineId = $this->getCoroutineId();
+        $this->bodyParams[$coroutineId] = [];
         $contentType = $this->getHeader('content-type');
         if ($contentType === null) {
             $contentType = Config::getString(
@@ -171,15 +171,15 @@ class SwooleRequestEngine {
                 if ($contentType === 'application/x-www-form-urlencoded'
                     || $contentType === 'multipart/form-data'
                 ) {
-                    $this->bodyParams = $this->getSwooleRequest()->post;
+                    $this->bodyParams[$coroutineId] = $this->getSwooleRequest()->post;
                     return;
                 }
             }
             if ($contentType === 'application/json') {
-                $this->bodyParams = json_decode(
+                $this->bodyParams[$coroutineId] = json_decode(
                     $this->getBody(), true, 512, JSON_BIGINT_AS_STRING
                 );
-                if ($this->bodyParams === null) {
+                if ($this->bodyParams[$coroutineId] === null) {
                     $errorMessage = 'The request body is not a valid json';
                     if (json_last_error() !== JSON_ERROR_NONE) {
                         $errorMessage .= ', ' . lcfirst(json_last_error_msg());
@@ -191,6 +191,10 @@ class SwooleRequestEngine {
     }
 
     private function getSwooleRequest() {
-        return Registry::get('hyperframework.web.swoole_request_' . Coroutine::getuid());
+        return Registry::get('hyperswoole.request_' . Coroutine::getuid());
+    }
+
+    private function getCoroutineId() {
+        return Coroutine::getuid();
     }
 }
