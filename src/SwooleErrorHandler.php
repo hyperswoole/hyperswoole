@@ -7,21 +7,21 @@ class SwooleErrorHandler extends Base {
     /**
      * @return void
      */
-    protected function handle() {
+    public function handle() {
         parent::handle();
     }
 
     /**
      * @return string
      */
-    protected function getOutput() {
+    public function getOutput() {
         return SwooleResponse::getResponseData();
     }
 
     /**
      * @return void
      */
-    protected function deleteOutput() {
+    public function deleteOutput() {
 		SwooleResponse::setResponseData('');
     }
 }
