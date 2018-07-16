@@ -10,7 +10,7 @@ class SwooleResponse extends Response {
      * @param string $responseData
      * @return void
      */
-    public static function setResponseData(responseData) {
+    public static function setResponseData($responseData) {
         static::getEngine()->setResponseData($responseData);
     }
 
