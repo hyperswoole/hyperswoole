@@ -22,6 +22,6 @@ class SwooleErrorHandler extends Base {
      * @return void
      */
     public function deleteOutput() {
-		SwooleResponse::setResponseData('');
+        SwooleResponse::setResponseData('');
     }
 }
