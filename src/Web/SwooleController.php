@@ -1,5 +1,5 @@
 <?php
-namespace Hyperswoole;
+namespace Hyperswoole\Web;
 
 use Hyperframework\Web\Controller;
 use Hyperframework\Common\Registry;

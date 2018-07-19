@@ -1,5 +1,5 @@
 <?php
-namespace Hyperswoole;
+namespace Hyperswoole\Web;
 
 use Swoole\Coroutine;
 use Hyperframework\Common\Registry;
