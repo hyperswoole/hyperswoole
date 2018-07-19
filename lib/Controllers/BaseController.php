@@ -1,9 +1,9 @@
 <?php
 namespace HyperswooleTest\Controllers;
 
-use Hyperswoole\SwooleController;
+use Hyperswoole\Web\Controller;
 
-class BaseController extends SwooleController {
+class BaseController extends Controller {
     public function __construct($app) {
         parent::__construct($app);
     }

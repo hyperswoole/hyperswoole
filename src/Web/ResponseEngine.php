@@ -4,7 +4,7 @@ namespace Hyperswoole\Web;
 use Swoole\Coroutine;
 use Hyperframework\Common\Registry;
 
-class SwooleResponseEngine {
+class ResponseEngine {
     private $headers      = [];
     private $statusCode   = [];
     private $responseData = [];

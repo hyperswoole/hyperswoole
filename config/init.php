@@ -7,7 +7,7 @@ return [
         'db.operation_profiler.enable_logger' => false,
         'db.operation_profiler.profile_handler_class' => 'Shoufuyou\Util\DbProfileHandler',
         'error_handler.class' => 'Shoufuyou\Util\ErrorCashHandler',
-        'web.request_engine_class'  => 'Hyperswoole\Web\SwooleRequestEngine',
-        'web.response_engine_class' => 'Hyperswoole\Web\SwooleResponseEngine'
+        'web.request_engine_class'  => 'Hyperswoole\Web\RequestEngine',
+        'web.response_engine_class' => 'Hyperswoole\Web\ResponseEngine'
     ]
 ];

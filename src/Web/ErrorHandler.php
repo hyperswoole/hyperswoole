@@ -3,7 +3,7 @@ namespace Hyperswoole\Web;
 
 use Hyperframework\Web\ErrorHandler as Base;
 
-class SwooleErrorHandler extends Base {
+class ErrorHandler extends Base {
     /**
      * @return void
      */
@@ -15,13 +15,13 @@ class SwooleErrorHandler extends Base {
      * @return string
      */
     public function getOutput() {
-        return SwooleResponse::getResponseData();
+        return Response::getResponseData();
     }
 
     /**
      * @return void
      */
     public function deleteOutput() {
-        SwooleResponse::setResponseData('');
+        Response::setResponseData('');
     }
 }

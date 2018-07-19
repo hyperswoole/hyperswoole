@@ -5,7 +5,7 @@ use Swoole\Coroutine;
 use Hyperframework\Web\Response;
 use Hyperframework\Common\Registry;
 
-class SwooleResponse extends Response {
+class Response extends Response {
     /**
      * @param string $responseData
      * @return void

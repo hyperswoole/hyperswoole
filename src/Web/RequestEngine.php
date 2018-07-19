@@ -5,7 +5,7 @@ use Swoole\Coroutine;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 
-class SwooleRequestEngine {
+class RequestEngine {
     private $bodyParams;
 
     /**

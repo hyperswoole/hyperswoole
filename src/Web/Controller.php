@@ -4,7 +4,7 @@ namespace Hyperswoole\Web;
 use Hyperframework\Web\Controller;
 use Hyperframework\Common\Registry;
 
-class SwooleController extends Controller {
+class Controller extends Controller {
     /**
      * @return void
      */
@@ -14,6 +14,6 @@ class SwooleController extends Controller {
             $response = json_encode($response, JSON_UNESCAPED_UNICODE);
         }
         
-        SwooleResponse::write($response);
+        Response::write($response);
     }
 }

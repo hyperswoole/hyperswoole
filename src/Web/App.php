@@ -9,7 +9,7 @@ use Hyperframework\Db\DbOperationProfiler;
 
 use Hyperframework\Web\App as Base;
 
-class SwooleApp extends Base {
+class App extends Base {
     private $router;
 
     /**
@@ -34,13 +34,13 @@ class SwooleApp extends Base {
                 $controller = $app->createController();
                 $controller->run();
             } catch (\Exception $e) {
-                $errorHandler = new SwooleErrorHandler();
+                $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
             }
 
             $app->setRouter(null);
-            SwooleResponse::end();
+            Response::end();
 
             Registry::remove($requestKey);
             Registry::remove($responseKey);
