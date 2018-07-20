@@ -105,7 +105,7 @@ class DbStatement {
      * @return mixed
      */
     public function fetchColumn($columnNumber = 0) {
-        $currentResult = isset($this->result[$this->cursor]) ? $this->result[$this->cursor] ? null;
+        $currentResult = isset($this->result[$this->cursor]) ? $this->result[$this->cursor] : null;
         if (is_null($currentResult)) {
             return $currentResult;
         }

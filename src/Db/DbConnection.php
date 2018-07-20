@@ -211,7 +211,7 @@ class DbConnection {
             );
         }
         if ($isQuery) {
-            $dbStatement new DbStatement($result, $this);
+            $dbStatement = new DbStatement($result, $this);
             $dbStatement->execute();
             return $dbStatement;
         }
