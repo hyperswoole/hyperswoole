@@ -1,14 +1,15 @@
 <?php
-namespace Hyperframework\Db;
+namespace Hyperswoole\Db;
 
-use PDO;
 use Exception;
 use Throwable;
+use Swoole\Coroutine\MySQL;
 use Hyperframework\Common\EventEmitter;
 
-class DbConnection extends PDO {
+class DbConnection {
     private $name;
     private $identifierQuotationMarks;
+    private $swooleMysql;
 
     /**
      * @param string $name
@@ -25,8 +26,15 @@ class DbConnection extends PDO {
         $driverOptions = []
     ) {
         $this->name = $name;
-        $driverOptions[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-        parent::__construct($dsn, $userName, $password, $driverOptions);
+
+        $this->swooleMysql = new MySQL();
+        $this->swooleMysql->connect([
+            'host'     => '127.0.0.1',
+            'port'     => 3306,
+            'user'     => 'root',
+            'password' => 'tyzZ001!',
+            'database' => 'heqiang',
+        ]);
     }
 
     /**
@@ -42,7 +50,7 @@ class DbConnection extends PDO {
      * @return DbStatement
      */
     public function prepare($sql, $driverOptions = []) {
-        $pdoStatement = parent::prepare($sql, $driverOptions);
+        $pdoStatement = $this->swooleMysql->prepare($sql);
         return new DbStatement($pdoStatement, $this);
     }
 
@@ -86,7 +94,7 @@ class DbConnection extends PDO {
         );
         $e = null;
         try {
-            parent::beginTransaction();
+            $this->swooleMysql->begin();
         } catch (Exception $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -109,7 +117,7 @@ class DbConnection extends PDO {
         );
         $e = null;
         try {
-            parent::commit();
+            $this->swooleMysql->commit();
         } catch (Exception $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -132,7 +140,7 @@ class DbConnection extends PDO {
         );
         $e = null;
         try {
-            parent::rollBack();
+            $this->swooleMysql->rollBack();
         } catch (Exception $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -188,31 +196,9 @@ class DbConnection extends PDO {
         $e = null;
         try {
             if ($isQuery) {
-                if ($fetchOptions === null) {
-                    $result = parent::query($sql);
-                } else {
-                    switch (count($fetchOptions)) {
-                        case 0:
-                            break;
-                        case 1:
-                            $result = parent::query($sql, $fetchOptions[0]);
-                            break;
-                        case 2:
-                            $result = parent::query(
-                                $sql, $fetchOptions[0], $fetchOptions[1]
-                            );
-                            break;
-                        default:
-                            $result = parent::query(
-                                $sql,
-                                $fetchOptions[0],
-                                $fetchOptions[1],
-                                $fetchOptions[2]
-                            );
-                    }
-                }
+                $result = $this->swooleMysql->prepare($sql);
             } else {
-                $result = parent::exec($sql);
+                $result = $this->swooleMysql->query($sql);
             }
         } catch (Exception $e) {
             throw $e;
