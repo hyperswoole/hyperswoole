@@ -2,10 +2,10 @@
 namespace Hyperswoole\Web;
 
 use Swoole\Coroutine;
-use Hyperframework\Web\Response;
 use Hyperframework\Common\Registry;
+use Hyperframework\Web\Response as Base;
 
-class Response extends Response {
+class Response extends Base {
     /**
      * @param string $responseData
      * @return void

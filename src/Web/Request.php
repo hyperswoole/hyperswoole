@@ -1,8 +1,8 @@
 <?php
 namespace Hyperswoole\Web;
 
-use Hyperframework\Web\Request;
+use Hyperframework\Web\Request as Base;
 
-class Request extends Request {
+class Request extends Base {
     
 }
