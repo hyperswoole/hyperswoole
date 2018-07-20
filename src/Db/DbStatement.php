@@ -1,5 +1,5 @@
 <?php
-namespace Hyperframework\Db;
+namespace Hyperswoole\Db;
 
 use PDO;
 use Exception;
@@ -11,6 +11,8 @@ class DbStatement {
     private $pdoStatement;
     private $connection;
     private $params = [];
+    private $result = [];
+    private $cursor = 0;
 
     /**
      * @param PDOStatement $pdoStatement
@@ -36,7 +38,7 @@ class DbStatement {
         );
         $e = null;
         try {
-            $this->pdoStatement->execute($params);
+            $this->result = $this->pdoStatement->execute($params);
         } catch (Exception $e) {
             throw $e;
         } catch (Throwable $e) {
@@ -81,7 +83,7 @@ class DbStatement {
         $cursorOrientation = PDO::FETCH_ORI_NEXT,
         $cursorOffset = 0
     ) {
-        return $this->pdoStatement->fetch();
+        return isset($this->result[$this->cursor]) ? $this->result[$this->cursor++] : null;
     }
 
     /**
@@ -95,14 +97,21 @@ class DbStatement {
         $fetchArgument = null,
         $constructorArguments = []
     ) {
-        return $this->pdoStatement->fetchAll();
+        return $this->result;
     }
 
     /**
-     * @return void
+     * @param int $columnNumber
+     * @return mixed
      */
-    public function nextRowset() {
-        return $this->pdoStatement->nextResult();
+    public function fetchColumn($columnNumber = 0) {
+        $currentResult = isset($this->result[$this->cursor]) ? $this->result[$this->cursor] ? null;
+        if (is_null($currentResult)) {
+            return $currentResult;
+        }
+
+        $values = array_values($currentResult);
+        return isset($values[$columnNumber]) ? $values[$columnNumber] : null;
     }
 
     /**
