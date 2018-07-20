@@ -28,14 +28,14 @@ class DbStatement {
      * @param array $params
      * @return void
      */
-    public function execute($params = null) {
-        if ($params !== null) {
-            $this->params = $params;
-        }
+    public function execute($params = []) {
+        $this->params = $params;
+/*
         EventEmitter::emit(
             'hyperframework.db.prepared_statement_executing',
             [$this, $this->params]
         );
+*/
         $e = null;
         try {
             $this->result = $this->pdoStatement->execute($params);
