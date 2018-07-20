@@ -1,10 +1,10 @@
 <?php
 namespace Hyperswoole\Web;
 
-use Hyperframework\Web\Controller;
 use Hyperframework\Common\Registry;
+use Hyperframework\Web\Controller as Base;
 
-class Controller extends Controller {
+class Controller extends Base {
     /**
      * @return void
      */
