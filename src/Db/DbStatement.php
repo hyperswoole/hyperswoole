@@ -1,6 +1,7 @@
 <?php
 namespace Hyperswoole\Db;
 
+use PDO;
 use Exception;
 use Throwable;
 use PDOStatement;
