@@ -1,7 +1,6 @@
 <?php
 namespace Hyperswoole\Db;
 
-use PDO;
 use Exception;
 use Throwable;
 use PDOStatement;
@@ -30,12 +29,12 @@ class DbStatement {
      */
     public function execute($params = []) {
         $this->params = $params;
-/*
+
         EventEmitter::emit(
             'hyperframework.db.prepared_statement_executing',
             [$this, $this->params]
         );
-*/
+
         $e = null;
         try {
             $this->result = $this->pdoStatement->execute($params);
@@ -101,23 +100,16 @@ class DbStatement {
     }
 
     /**
-     * @param int $columnNumber
-     * @return mixed
-     */
-    public function fetchColumn($columnNumber = 0) {
-        $currentResult = isset($this->result[$this->cursor]) ? $this->result[$this->cursor] : null;
-        if (is_null($currentResult)) {
-            return $currentResult;
-        }
-
-        $values = array_values($currentResult);
-        return isset($values[$columnNumber]) ? $values[$columnNumber] : null;
-    }
-
-    /**
      * @return int
      */
     public function rowCount() {
         return $this->pdoStatement->affected_rows;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSql() {
+        return $this->connection->getPrepareSql();
     }
 }

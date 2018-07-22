@@ -10,6 +10,7 @@ class DbConnection {
     private $name;
     private $identifierQuotationMarks;
     private $swooleMysql;
+    private $prepareSql;
 
     /**
      * @param string $name
@@ -50,6 +51,7 @@ class DbConnection {
      * @return DbStatement
      */
     public function prepare($sql, $driverOptions = []) {
+        $this->prepareSql = $sql;
         $pdoStatement = $this->swooleMysql->prepare($sql);
         return new DbStatement($pdoStatement, $this);
     }
@@ -170,14 +172,7 @@ class DbConnection {
      * @return string[]
      */
     protected function getIdentifierQuotationMarks() {
-        switch ($this->getAttribute(PDO::ATTR_DRIVER_NAME)) {
-            case 'mysql':
-                return ['`', '`'];
-            case 'sqlsrv':
-                return ['[', ']'];
-            default:
-                return ['"', '"'];
-        }
+        return ['`', '`'];
     }
 
     /**
@@ -216,5 +211,9 @@ class DbConnection {
             return $dbStatement;
         }
         return $result;
+    }
+
+    public function getPrepareSql() {
+        return $this->prepareSql;
     }
 }
