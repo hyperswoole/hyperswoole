@@ -75,11 +75,11 @@ class DbStatement {
         return $this->pdoStatement->error;
     }
 
-    protected function getFetchOptions() {
+    public function getFetchOptions() {
         return $this->fetchOptions;
     }
 
-    protected function setFetchOptions($fetchOptions) {
+    public function setFetchOptions($fetchOptions) {
         $this->fetchOptions = $fetchOptions;
     }
 
