@@ -128,11 +128,11 @@ class DbStatement {
      * @return array
      */
     public function fetchAll(
-        $fetchStyle = null,
+        $fetchStyle = PDO::FETCH_ASSOC,
         $fetchArgument = null,
         $constructorArguments = []
     ) {
-        return $this->convertData($this->result, $fetchStyle);
+        return $this->fetchData($this->result, [$fetchStyle]);
     }
 
     /**
