@@ -184,15 +184,17 @@ class DbConnection {
     private function sendSql(
         $sql, $isQuery = false, $fetchOptions = null
     ) {
-        EventEmitter::emit(
-            'hyperframework.db.sql_statement_executing', [$this, $sql]
-        );
         $result = null;
         $e = null;
         try {
             if ($isQuery) {
-                $result = $this->swooleMysql->prepare($sql);
+                $result = $this->prepare($sql);
+                $result->setFetchOptions($fetchOptions);
+                $result->execute();
             } else {
+                EventEmitter::emit(
+                    'hyperframework.db.sql_statement_executing', [$this, $sql]
+                );
                 $result = $this->swooleMysql->query($sql);
             }
         } catch (Exception $e) {
@@ -205,11 +207,7 @@ class DbConnection {
                 [$e === null ? 'success' : 'failure']
             );
         }
-        if ($isQuery) {
-            $dbStatement = new DbStatement($result, $this);
-            $dbStatement->execute();
-            return $dbStatement;
-        }
+
         return $result;
     }
 

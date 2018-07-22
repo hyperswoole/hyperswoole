@@ -10,8 +10,9 @@ class DbStatement {
     private $pdoStatement;
     private $connection;
     private $params = [];
-    private $result = [];
-    private $cursor = 0;
+    private $result = null;
+    private $cursor = -1;
+    private $fetchOptions = [];
 
     /**
      * @param PDOStatement $pdoStatement
@@ -20,7 +21,7 @@ class DbStatement {
      */
     public function __construct($pdoStatement, $connection) {
         $this->pdoStatement = $pdoStatement;
-        $this->connection = $connection;
+        $this->connection   = $connection;
     }
 
     /**
@@ -29,6 +30,9 @@ class DbStatement {
      */
     public function execute($params = []) {
         $this->params = $params;
+        $this->result = null;
+        $this->cursor = -1;
+        $this->fetchOptions = [];
 
         EventEmitter::emit(
             'hyperframework.db.prepared_statement_executing',
@@ -71,6 +75,14 @@ class DbStatement {
         return $this->pdoStatement->error;
     }
 
+    protected function getFetchOptions() {
+        return $this->fetchOptions;
+    }
+
+    protected function setFetchOptions($fetchOptions) {
+        $this->fetchOptions = $fetchOptions;
+    }
+
     /**
      * @param int $fetchStyle
      * @param int $cursorOrientation
@@ -78,11 +90,34 @@ class DbStatement {
      * @return mixed
      */
     public function fetch(
-        $fetchStyle = null,
+        $fetchStyle = PDO::FETCH_ASSOC,
         $cursorOrientation = PDO::FETCH_ORI_NEXT,
         $cursorOffset = 0
     ) {
-        return isset($this->result[$this->cursor]) ? $this->result[$this->cursor++] : null;
+        switch ($cursorOrientation) {
+            case PDO::FETCH_ORI_ABS:
+                $this->cursor = $cursorOffset;
+                break;
+            case PDO::FETCH_ORI_REL:
+                $this->cursor += $cursorOffset;
+                break;
+            case PDO::FETCH_ORI_NEXT:
+            default:
+                $this->cursor++; 
+        }
+
+        if (isset($this->result[$this->cursor])) {
+            $data = $this->result[$this->cursor];
+        } else {
+            $data = false;
+        }
+
+        if ($data === false) {
+            return $data;
+        }
+
+        $result = $this->fetchData([$data], [$fetchStyle]);
+        return array_shift($result);
     }
 
     /**
@@ -96,7 +131,7 @@ class DbStatement {
         $fetchArgument = null,
         $constructorArguments = []
     ) {
-        return $this->result;
+        return $this->convertData($this->result, $fetchStyle);
     }
 
     /**
@@ -111,5 +146,66 @@ class DbStatement {
      */
     public function getSql() {
         return $this->connection->getPrepareSql();
+    }
+
+    private function fetchData($data, $fetchOptions) {
+        $fetchOptions = !empty($this->fetchOptions) ? $this->fetchOptions : $fetchOptions;
+        $fetchStyle   = !empty($fetchOptions) ? $fetchOptions[0] : PDO::FETCH_ASSOC;
+
+        switch ($fetchStyle) {
+            case PDO::FETCH_BOTH:
+                return $this->fetchBoth($data);
+                break;
+            case PDO::FETCH_COLUMN:
+                return $this->fetchColumn($data, $fetchOptions[1]);
+                break;
+            case PDO::FETCH_OBJ:
+                return $this->fetchObj($data);
+                break;
+            case PDO::FETCH_NUM:
+                return $this->fetchNum($data);
+                break;
+            case PDO::FETCH_BOUND:
+            case PDO::FETCH_CLASS:
+            case PDO::FETCH_INTO:
+            case PDO::FETCH_LAZY:
+            case PDO::FETCH_ASSOC:
+            default:
+                return $data;
+        }
+    }
+
+    private function fetchBoth($arrayData) {
+        $result = [];
+        foreach ($arrayData as $valueData) {
+            $index = 0;
+            foreach ($valueData as $key => $value) {
+                $tmpData[$key]     = $value;
+                $tmpData[$index++] = $value;
+            }
+            $result[] = $tmpData;
+        }
+        return $result;
+    }
+
+    private function fetchNum($arrayData) {
+        $result = [];
+        foreach ($arrayData as $value) {
+            $result[] = array_values($value);
+        }
+        return $result;
+    }
+
+    private function fetchObj($arrayData) {
+        $result = [];
+        foreach ($arrayData as $value) {
+            $result[] = (object)$value;
+        }
+        return $result;
+    }
+
+    private function fetchColumn($arrayData, $columnNumber) {
+        $result = $this->fetchNum($arrayData);
+        return array_column($result, $columnNumber);
     }
 }
