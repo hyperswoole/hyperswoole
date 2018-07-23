@@ -2,10 +2,11 @@
 namespace Hyperswoole\Db;
 
 use Swoole\Coroutine;
+use Hyperframework\Common\Registry;
 use Hyperframework\Db\DbClientEngine;
 use Hyperframework\Db\DbClient as Base;
 
-class DbClient {
+class DbClient extends Base {
     private static $connectionCount;
 
     /**
