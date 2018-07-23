@@ -2,6 +2,7 @@
 namespace Hyperswoole\Web;
 
 use Swoole\Coroutine;
+use Hyperswoole\Db\DbClient;
 use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;

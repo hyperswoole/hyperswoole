@@ -2,6 +2,7 @@
 namespace Hyperswoole\Db;
 
 use Swoole\Coroutine;
+use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 use Hyperframework\Db\DbClientEngine;
 use Hyperframework\Db\DbClient as Base;
