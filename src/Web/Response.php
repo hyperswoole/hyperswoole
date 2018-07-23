@@ -55,4 +55,8 @@ class Response extends Base {
     public static function end() {
         static::getEngine()->end();
     }
+
+    public static function removeResponse() {
+        static::getEngine()->removeResponse();
+    }
 }

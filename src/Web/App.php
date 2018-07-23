@@ -20,17 +20,8 @@ class App extends Base {
         $app  = static::createApp();
         $http = $app->createSwoole();
 
-        // 添加事件监听
-        EventEmitter::addListener(new DbOperationProfiler);
-
         $http->on('request', function ($request, $response) use ($app) {
-            $coroutineId = Coroutine::getuid();
-            $requestKey  = 'hyperswoole.request_' . $coroutineId;
-            $responseKey = 'hyperswoole.response_' . $coroutineId;
-
-            Registry::set($requestKey, $request);
-            Registry::set($responseKey, $response);
-
+            $app->requestStart($app);
             try {
                 $controller = $app->createController();
                 $controller->run();
@@ -39,27 +30,17 @@ class App extends Base {
                 $errorHandler->setError($e);
                 $errorHandler->handle();
             }
-
-            $app->setRouter(null);
-            Response::end();
-
-            Registry::remove($requestKey);
-            Registry::remove($responseKey);
-            Registry::remove('hyperswoole.db.client_engine_' . $coroutineId);
-
-            $connectionCount = DbClient::getConnectionCount();
-            $channel = Registry::get('hyperswoole.mysql.channel');
-            for ($i = 0; $i < $connectionCount; $i++) {
-                $channel->pop();
-            }
+            $app->requestEnd($app);
         });
-
         $http->start();
     }
 
     public function createSwoole() {
         $ip   = Config::getString('hyperswoole.ip', '127.0.0.1');
         $port = Config::getString('hyperswoole.port', 9501);
+
+        // 添加事件监听
+        EventEmitter::addListener(new DbOperationProfiler);
 
         // 创建channel
         $channel = new Coroutine\Channel(1000);
@@ -82,5 +63,38 @@ class App extends Base {
         ]);
 
         return $http;
+    }
+
+    public function requestStart($app) {
+        $coroutineId = Coroutine::getuid();
+        $requestKey  = 'hyperswoole.request_' . $coroutineId;
+        $responseKey = 'hyperswoole.response_' . $coroutineId;
+
+        Registry::set($requestKey, $request);
+        Registry::set($responseKey, $response);
+    }
+
+    public function requestEnd($app) {
+        $coroutineId = Coroutine::getuid();        
+        $requestKey  = 'hyperswoole.request_' . $coroutineId;
+        $responseKey = 'hyperswoole.response_' . $coroutineId;
+        $dbEngineKey = 'hyperswoole.db.client_engine_' . $coroutineId;
+
+        Response::end();
+
+        Request::removeRequest();
+        Response::removeResponse();
+
+        Registry::remove($requestKey);
+        Registry::remove($responseKey);
+        Registry::remove($dbEngineKey);
+
+        $app->setRouter(null);
+
+        $connectionCount = DbClient::getConnectionCount();
+        $channel = Registry::get('hyperswoole.mysql.channel');
+        for ($i = 0; $i < $connectionCount; $i++) {
+            $channel->pop();
+        }
     }
 }

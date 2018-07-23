@@ -191,6 +191,22 @@ class ResponseEngine {
         $this->getSwooleResponse()->end($this->getResponseData());
     }
 
+    public function removeResponse() {
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->headers[$coroutineId])) {
+            unset($this->headers[$coroutineId]);            
+        }
+        if (isset($this->statusCode[$coroutineId])) {
+            unset($this->statusCode[$coroutineId]);            
+        }
+        if (isset($this->responseData[$coroutineId])) {
+            unset($this->responseData[$coroutineId]);            
+        }
+        if (isset($this->cookie[$coroutineId])) {
+            unset($this->cookie[$coroutineId]);            
+        }
+    }
+
     private function getSwooleResponse() {
         return Registry::get('hyperswoole.response_' . $this->getCoroutineId());
     }

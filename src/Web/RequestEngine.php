@@ -190,6 +190,13 @@ class RequestEngine {
         }
     }
 
+    public function removeRequest() {
+        $coroutineId = $this->getCoroutineId();
+        if (isset($this->bodyParams[$coroutineId])) {
+            unset($this->bodyParams[$coroutineId]);            
+        }
+    }
+
     private function getSwooleRequest() {
         return Registry::get('hyperswoole.request_' . Coroutine::getuid());
     }
