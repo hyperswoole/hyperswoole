@@ -48,6 +48,7 @@ class DbConnection {
             'user'     => $userName,
             'password' => $password,
             'database' => isset($connectData['dbname']) ? $connectData['dbname'] : null,
+            'charset'  => isset($connectData['charset']) ? $connectData['charset'] : 'utf8'
         ]);
     }
 
