@@ -21,7 +21,7 @@ class App extends Base {
         $http = $app->createSwoole();
 
         $http->on('request', function ($request, $response) use ($app) {
-            $app->requestStart($app);
+            $app->requestStart($request, $response);
             try {
                 $controller = $app->createController();
                 $controller->run();
@@ -65,7 +65,7 @@ class App extends Base {
         return $http;
     }
 
-    public function requestStart($app) {
+    public function requestStart($request, $response) {
         $coroutineId = Coroutine::getuid();
         $requestKey  = 'hyperswoole.request_' . $coroutineId;
         $responseKey = 'hyperswoole.response_' . $coroutineId;
