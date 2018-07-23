@@ -32,13 +32,22 @@ class DbConnection {
         DbClient::incrConnectionCount();
 
         $this->name = $name;
+
+        $connectData = [];
+        list($dsnPrefix, $string) = explode(':', $dsn);
+        $connectInfo = explode(';', $string);
+        foreach ($connectInfo as $valueData) {
+            list($key, $value) = explode('=', $valueData);
+            $connectData[$key] = $value;
+        }
+
         $this->swooleMysql = new MySQL();
         $this->swooleMysql->connect([
-            'host'     => '127.0.0.1',
-            'port'     => 3306,
-            'user'     => 'root',
-            'password' => 'tyzZ001!',
-            'database' => 'heqiang',
+            'host'     => $connectData['host'],
+            'port'     => isset($connectData['port']) ? $connectData['port'] : 3306,
+            'user'     => $userName,
+            'password' => $password,
+            'database' => isset($connectData['dbname']) ? $connectData['dbname'] : null,
         ]);
     }
 
