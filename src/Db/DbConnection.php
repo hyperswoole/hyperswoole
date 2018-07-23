@@ -4,6 +4,7 @@ namespace Hyperswoole\Db;
 use Exception;
 use Throwable;
 use Swoole\Coroutine\MySQL;
+use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;
 
 class DbConnection {
@@ -26,8 +27,11 @@ class DbConnection {
         $password = null,
         $driverOptions = []
     ) {
-        $this->name = $name;
+        $mysqlChannel = Registry::get('hyperswoole.mysql.channel');
+        $mysqlChannel->push(1);
+        DbClient::incrConnectionCount();
 
+        $this->name = $name;
         $this->swooleMysql = new MySQL();
         $this->swooleMysql->connect([
             'host'     => '127.0.0.1',

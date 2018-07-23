@@ -44,6 +44,13 @@ class App extends Base {
 
             Registry::remove($requestKey);
             Registry::remove($responseKey);
+            Registry::remove('hyperswoole.db.client_engine_' . $coroutineId);
+
+            $connectionCount = DbClient::getConnectionCount();
+            $channel = Registry::get('hyperswoole.mysql.channel');
+            for ($i = 0; $i < $connectionCount; $i++) {
+                $channel->pop();
+            }
         });
 
         $http->start();
@@ -53,8 +60,11 @@ class App extends Base {
         $ip   = Config::getString('hyperswoole.ip', '127.0.0.1');
         $port = Config::getString('hyperswoole.port', 9501);
 
-        $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
+        // 创建channel
+        $channel = new Coroutine\Channel(1000);
+        Registry::set('hyperswoole.mysql.channel', $channel);
 
+        $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
         if ($openHttp2Protocol === false) {
             return new \swoole_http_server($ip, $port);            
         }
