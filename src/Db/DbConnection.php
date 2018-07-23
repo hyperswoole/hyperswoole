@@ -159,6 +159,10 @@ class DbConnection {
         }
     }
 
+    public function lastInsertId() {
+        return $this->swooleMysql->insert_id;
+    }
+
     /**
      * @param string $identifier
      * @return string
