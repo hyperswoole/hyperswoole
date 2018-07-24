@@ -11,7 +11,7 @@ class FileLogHandler extends Base {
      * @return void
      */
     protected function handleFormattedLog($log) {
-        swoole_async_writefile($this->getPath(), $log, function ($filename) {
+        swoole_async_writefile($this->getPath(), $log, function ($this->getPath()) {
         }, $flags = FILE_APPEND);
     }
 }
