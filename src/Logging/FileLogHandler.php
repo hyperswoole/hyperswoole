@@ -14,7 +14,7 @@ class FileLogHandler extends FormattingLogHandler {
         if ($this->path === null) {
             $this->path = Config::getString(
                 $this->getName() . '.path', Config::getString(
-                    'hyperframework.logging.file_handler.path',
+                    'hyperswoole.logging.file_handler.path',
                     'log' . DIRECTORY_SEPARATOR . 'app.log'
                 )
             );
