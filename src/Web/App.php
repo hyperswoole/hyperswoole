@@ -29,6 +29,10 @@ class App extends Base {
                 $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
+            } catch (\Throwable $e) {
+                $errorHandler = new ErrorHandler();
+                $errorHandler->setError($e);
+                $errorHandler->handle();
             }
             $app->requestEnd($app);
         });
