@@ -30,8 +30,6 @@ class FileLogHandler extends FormattingLogHandler {
     protected function handleFormattedLog($log) {
         $filename = $this->getPath();
         $filename = FileFullPathBuilder::build($filename);
-        swoole_async_writefile($filename, $log, function($filename) {
-
-        }, $flags = FILE_APPEND);
+        swoole_async_writefile($filename, $log, null, FILE_APPEND);
     }
 }
