@@ -1,8 +1,8 @@
 <?php
-namespace HyperSwoole\Logging;
+namespace Hyperswoole\Logging;
 
 use Hyperframework\Common\Config;
-use Hyperframework\Common\FormattingLogHandler;
+use Hyperframework\Logging\FormattingLogHandler;
 
 class FileLogHandler extends FormattingLogHandler {
     private $path;
@@ -14,7 +14,7 @@ class FileLogHandler extends FormattingLogHandler {
         if ($this->path === null) {
             $this->path = Config::getString(
                 $this->getName() . '.path', Config::getString(
-                    'hyperswoole.logging.file_handler.path',
+                    'hyperframework.logging.file_handler.path',
                     'log' . DIRECTORY_SEPARATOR . 'app.log'
                 )
             );
