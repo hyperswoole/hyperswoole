@@ -1,5 +1,5 @@
 <?php
-namespace Hyperframework\Logging;
+namespace HyperSwoole\Logging;
 
 use Hyperframework\Common\Config;
 use Hyperframework\Common\FormattingLogHandler;
@@ -29,7 +29,7 @@ class FileLogHandler extends FormattingLogHandler {
     protected function handleFormattedLog($log) {
         $filename = $this->getPath();
         swoole_async_writefile($filename, $log, function($filename) {
-            
+
         }, $flags = FILE_APPEND);
     }
 }
