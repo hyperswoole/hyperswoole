@@ -21,7 +21,7 @@ class App extends Base {
         $app    = static::createApp();
         $http   = $app->createSwoole();
         $router = $app->getRouter();
-        $this->routes = $router->buildRoutes();
+        $app->routes = $router->buildRoutes();
 
         $http->on('request', function ($request, $response) use ($app) {
             $app->requestStart($request, $response);
