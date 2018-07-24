@@ -12,13 +12,16 @@ use Hyperframework\Web\App as Base;
 
 class App extends Base {
     private $router;
+    private $routes;
 
     /**
      * @return void
      */
     public static function run() {
-        $app  = static::createApp();
-        $http = $app->createSwoole();
+        $app    = static::createApp();
+        $http   = $app->createSwoole();
+        $router = $this->getRouter();
+        $this->routes = $router->buildRoutes();
 
         $http->on('request', function ($request, $response) use ($app) {
             $app->requestStart($request, $response);
@@ -100,5 +103,26 @@ class App extends Base {
         for ($i = 0; $i < $connectionCount; $i++) {
             $channel->pop();
         }
+    }
+
+        /**
+     * @return Controller
+     */
+    protected function createController() {
+        $router = $this->getRouter();
+        $router->execute($this->routes);
+
+        $class = (string)$router->getControllerClass();
+        if ($class === '') {
+            throw new UnexpectedValueException(
+                'The controller class cannot be empty.'
+            );
+        }
+        if (class_exists($class) === false) {
+            throw new ClassNotFoundException(
+                "Controller class '$class' does not exist."
+            );
+        }
+        return new $class($this);
     }
 }
