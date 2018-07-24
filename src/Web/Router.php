@@ -1,5 +1,5 @@
 <?php
-namespace Hyperframework\Web;
+namespace Hyperswoole\Web;
 
 use Hyperframework\Web\RouteCollection;
 use Hyperframework\Web\Router as Base;
