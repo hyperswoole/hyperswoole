@@ -2,7 +2,7 @@
 
 namespace HyperswooleTest;
 
-use Hyperframework\Web\Router as Base;
+use Hyperswoole\Web\Router as Base;
 
 class Router extends Base {
     protected function prepare($routes) {
