@@ -2,6 +2,7 @@
 namespace Hyperswoole\Logging;
 
 use Hyperframework\Common\Config;
+use Hyperframework\Common\FileFullPathBuilder;
 use Hyperframework\Logging\FormattingLogHandler;
 
 class FileLogHandler extends FormattingLogHandler {
@@ -28,6 +29,7 @@ class FileLogHandler extends FormattingLogHandler {
      */
     protected function handleFormattedLog($log) {
         $filename = $this->getPath();
+        $filename = FileFullPathBuilder::build($filename);
         swoole_async_writefile($filename, $log, function($filename) {
 
         }, $flags = FILE_APPEND);
