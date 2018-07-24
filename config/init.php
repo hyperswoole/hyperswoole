@@ -10,6 +10,6 @@ return [
         'web.request_engine_class'  => 'Hyperswoole\Web\RequestEngine',
         'web.response_engine_class' => 'Hyperswoole\Web\ResponseEngine',
         'db.connection_class'       => 'Hyperswoole\Db\DbConnection',
-        'logging.handler.class'     => 'Hyperswoole\Logging\FileLogHandler'
+        'logging.handler.class'     => 'Hyperswoole\Logging\FileLogHandler',
     ]
 ];

@@ -20,7 +20,7 @@ class App extends Base {
     public static function run() {
         $app    = static::createApp();
         $http   = $app->createSwoole();
-        $router = $this->getRouter();
+        $router = $app->getRouter();
         $this->routes = $router->buildRoutes();
 
         $http->on('request', function ($request, $response) use ($app) {
