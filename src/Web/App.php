@@ -13,36 +13,33 @@ use Hyperframework\Web\App as Base;
 class App extends Base {
     private $router;
     private $routes;
+    private $shouldReload = 1;
 
-    /**
-     * @return void
-     */
     public static function run() {
-        $app    = static::createApp();
-        $http   = $app->createSwoole();
-        $router = $app->getRouter();
-        $app->routes = $router->buildRoutes();
-
-        $http->on('request', function ($request, $response) use ($app) {
-            $app->requestStart($request, $response);
-            try {
-                $controller = $app->createController();
-                $controller->run();
-            } catch (\Exception $e) {
-                $errorHandler = new ErrorHandler();
-                $errorHandler->setError($e);
-                $errorHandler->handle();
-            } catch (\Throwable $e) {
-                $errorHandler = new ErrorHandler();
-                $errorHandler->setError($e);
-                $errorHandler->handle();
-            }
-            $app->requestEnd($app);
-        });
+        $app  = static::createApp();
+        $http = $app->createSwoole();
+        $http->on('request', [$app, 'handle']);
         $http->start();
     }
 
-    public function createSwoole() {
+    protected function handle($request, $response) {
+        try {
+            $this->requestStart($request, $response);
+            $controller = $this->createController();
+            $controller->run();
+        } catch (\Exception $e) {
+            $errorHandler = new ErrorHandler();
+            $errorHandler->setError($e);
+            $errorHandler->handle();
+        } catch (\Throwable $e) {
+            $errorHandler = new ErrorHandler();
+            $errorHandler->setError($e);
+            $errorHandler->handle();
+        }
+        $this->requestEnd();
+    }
+
+    protected function createSwoole() {
         $ip   = Config::getString('hyperswoole.ip', '127.0.0.1');
         $port = Config::getString('hyperswoole.port', 9501);
 
@@ -72,16 +69,30 @@ class App extends Base {
         return $http;
     }
 
-    public function requestStart($request, $response) {
+    protected function requestStart($request, $response) {
         $coroutineId = Coroutine::getuid();
         $requestKey  = 'hyperswoole.request_' . $coroutineId;
         $responseKey = 'hyperswoole.response_' . $coroutineId;
 
         Registry::set($requestKey, $request);
         Registry::set($responseKey, $response);
+
+        if ($this->shouldReload == 0) {
+            return;
+        }
+
+        $this->shouldReload = 0;
+        $this->routes = $this->getRouter()->buildRoutes();
+        $this->initializeConfig();
+
+        if (Config::getBool(
+            'hyperframework.initialize_error_handler', true
+        )) {
+            $this->initializeErrorHandler();
+        }
     }
 
-    public function requestEnd($app) {
+    protected function requestEnd() {
         $coroutineId = Coroutine::getuid();        
         $requestKey  = 'hyperswoole.request_' . $coroutineId;
         $responseKey = 'hyperswoole.response_' . $coroutineId;
@@ -96,7 +107,7 @@ class App extends Base {
         Registry::remove($responseKey);
         Registry::remove($dbEngineKey);
 
-        $app->setRouter(null);
+        $this->setRouter(null);
 
         $connectionCount = DbClient::getConnectionCount();
         $channel = Registry::get('hyperswoole.mysql.channel');
@@ -105,9 +116,6 @@ class App extends Base {
         }
     }
 
-        /**
-     * @return Controller
-     */
     protected function createController() {
         $router = $this->getRouter();
         $router->execute($this->routes);
