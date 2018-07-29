@@ -22,7 +22,7 @@ class App extends Base {
         $http->start();
     }
 
-    protected function handle($request, $response) {
+    public function handle($request, $response) {
         try {
             $this->requestStart($request, $response);
             $controller = $this->createController();
