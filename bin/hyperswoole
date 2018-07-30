@@ -2,7 +2,7 @@
 
 if [ $1 == "start" ];then
     cd `dirname $0`
-    php swoole.php
+    php hyperswoole.php
 fi
 
 if [ $1 == "reload" ];then
