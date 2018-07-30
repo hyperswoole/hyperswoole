@@ -44,7 +44,7 @@ class App extends Base {
         $this->requestEnd();
     }
 
-    public function handleHtpp2($request, $response) {
+    public function handleHttp2($request, $response) {
         go(function() use ($request, $response) {
             try {
                 $this->requestStart($request, $response);
