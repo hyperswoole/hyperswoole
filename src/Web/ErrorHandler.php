@@ -4,11 +4,16 @@ namespace Hyperswoole\Web;
 use Hyperframework\Web\ErrorHandler as Base;
 
 class ErrorHandler extends Base {
+    private $hasHandled = false;
+
     /**
      * @return void
      */
     public function handle() {
-        parent::handle();
+        if ($this->hasHandled === false) {
+            $this->hasHandled = true;
+            parent::handle();
+        }
     }
 
     /**

@@ -17,7 +17,7 @@ class App extends Base {
 
     public static function run() {
         $app  = static::createApp();
-        $http = $app->createSwoole();
+        $http = $app->createHttp();
         $http->on('request', [$app, 'handle']);
         $http->start();
     }
@@ -39,33 +39,33 @@ class App extends Base {
         $this->requestEnd();
     }
 
-    protected function createSwoole() {
+    protected function createHttp() {
         $ip   = Config::getString('hyperswoole.ip', '127.0.0.1');
         $port = Config::getString('hyperswoole.port', 9501);
+        $config = [
+            'worker_num' => Config::getInt('hyperswoole.worker_num', 4),
+            'daemonize' => Config::getInt('hyperswoole.daemonize', 1);
+        ];
 
+        // 保存主进程id
+        file_put_contents('../log/hyperswoole.pid', getmypid());
         // 添加事件监听
         EventEmitter::addListener(new DbOperationProfiler);
-
         // 创建channel
         $channel = new Coroutine\Channel(1000);
         Registry::set('hyperswoole.mysql.channel', $channel);
 
         $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
         if ($openHttp2Protocol === false) {
-            return new \swoole_http_server($ip, $port);            
+            $http = new \swoole_http_server($ip, $port);            
+            $http->set($config);
         }
 
         $http = new \swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
-
-        $sslCertFile = Config::getString('hyperswoole.ssl_cert_file');
-        $sslKeyFile  = Config::getString('hyperswoole.ssl_key_file');
-
-        $http->set([
-            'ssl_cert_file' => $sslCertFile,
-            'ssl_key_file'  => $sslKeyFile,
-            'open_http2_protocol' => true,
-        ]);
-
+        $config['ssl_cert_file']       = Config::getString('hyperswoole.ssl_cert_file');
+        $config['ssl_key_file']        = Config::getString('hyperswoole.ssl_key_file');
+        $config['open_http2_protocol'] = true;
+        $http->set($config);
         return $http;
     }
 

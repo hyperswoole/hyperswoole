@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [$1 = "start"];then
+    basepath = $(cd `dirname $0`; pwd)
+    cd $basepath
+    php swoole.php
+fi
+
+if [$1 = "reload"];then
+    kill -SIGUSR1 `cat ../log/hyperswoole.pid`
+fi

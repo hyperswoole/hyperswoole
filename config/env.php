@@ -27,6 +27,8 @@ return [
     'hyperframework.swoole' => [
         'ip'                  => '0.0.0.0',
         'port'                => 9501,
+        'worker_num'          => 4,
+        'daemonize'           => 1,
         'ssl_cert_file'       => '../data/server.crt',
         'ssl_key_file'        => '../data/server.key',
         'open_http2_protocol' => false,
