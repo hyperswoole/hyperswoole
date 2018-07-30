@@ -1,11 +1,15 @@
 #!/bin/bash
 
-if [$1 = "start"];then
-    basepath = $(cd `dirname $0`; pwd)
-    cd $basepath
+if [ $1 == "start" ];then
+    cd `dirname $0`
     php swoole.php
 fi
 
-if [$1 = "reload"];then
+if [ $1 == "reload" ];then
     kill -SIGUSR1 `cat ../log/hyperswoole.pid`
 fi
+
+if [ $1 == "stop" ];then
+    kill -15 `cat ../log/hyperswoole.pid`
+fi
+

@@ -44,7 +44,7 @@ class App extends Base {
         $port = Config::getString('hyperswoole.port', 9501);
         $config = [
             'worker_num' => Config::getInt('hyperswoole.worker_num', 4),
-            'daemonize' => Config::getInt('hyperswoole.daemonize', 1);
+            'daemonize' => Config::getInt('hyperswoole.daemonize', 1)
         ];
 
         // 保存主进程id
@@ -59,6 +59,7 @@ class App extends Base {
         if ($openHttp2Protocol === false) {
             $http = new \swoole_http_server($ip, $port);            
             $http->set($config);
+            return $http;
         }
 
         $http = new \swoole_http_server($ip, $port, SWOOLE_PROCESS, SWOOLE_SOCK_TCP | SWOOLE_SSL);
