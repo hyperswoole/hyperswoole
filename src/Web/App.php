@@ -18,11 +18,16 @@ class App extends Base {
     public static function run() {
         $app  = static::createApp();
         $http = $app->createHttp();
-        $http->on('request', [$app, 'handle']);
+        $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
+        if ($openHttp2Protocol === false) {
+            $http->on('request', [$app, 'handleHttp']);
+        } else {
+            $http->on('request', [$app, 'handleHttp2']);
+        }
         $http->start();
     }
 
-    public function handle($request, $response) {
+    public function handleHttp($request, $response) {
         try {
             $this->requestStart($request, $response);
             $controller = $this->createController();
@@ -37,6 +42,25 @@ class App extends Base {
             $errorHandler->handle();
         }
         $this->requestEnd();
+    }
+
+    public function handleHtpp2($request, $response) {
+        go(function() use ($request, $response)) {
+            try {
+                $this->requestStart($request, $response);
+                $controller = $this->createController();
+                $controller->run();
+            } catch (\Exception $e) {
+                $errorHandler = new ErrorHandler();
+                $errorHandler->setError($e);
+                $errorHandler->handle();
+            } catch (\Throwable $e) {
+                $errorHandler = new ErrorHandler();
+                $errorHandler->setError($e);
+                $errorHandler->handle();
+            }
+            $this->requestEnd();
+        }
     }
 
     protected function createHttp() {

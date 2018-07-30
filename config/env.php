@@ -24,7 +24,7 @@ return [
         'pwd'    => '1hq234hq'
     ],
 
-    'hyperframework.swoole' => [
+    'hyperswoole' => [
         'ip'                  => '0.0.0.0',
         'port'                => 9501,
         'worker_num'          => 4,
