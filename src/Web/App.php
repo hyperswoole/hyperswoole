@@ -45,7 +45,7 @@ class App extends Base {
     }
 
     public function handleHtpp2($request, $response) {
-        go(function() use ($request, $response)) {
+        go(function() use ($request, $response) {
             try {
                 $this->requestStart($request, $response);
                 $controller = $this->createController();
@@ -60,7 +60,7 @@ class App extends Base {
                 $errorHandler->handle();
             }
             $this->requestEnd();
-        }
+        });
     }
 
     protected function createHttp() {
