@@ -4,9 +4,9 @@ if [ -z $1 ];then
     cd `dirname $0`
     php hyperswoole.php
 elif [ $1 == "reload" ];then
-    kill -SIGUSR1 `cat ../log/hyperswoole.pid`
+    kill -SIGUSR1 `ps -ef|grep hyper|grep -v 'grep'|awk '{a[$2]=1;b[$3]=1;c[$3]=$2} END {for(i in b) {if (a[i]==0) {print c[i]}}}'`
 elif [ $1 == "stop" ];then
-    kill -15 `cat ../log/hyperswoole.pid`
+    kill -15 `ps -ef|grep hyper|grep -v 'grep'|awk '{a[$2]=1;b[$3]=1;c[$3]=$2} END {for(i in b) {if (a[i]==0) {print c[i]}}}'`
 else
     cd `dirname $0`
     php hyperswoole.php

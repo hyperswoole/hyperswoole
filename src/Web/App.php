@@ -71,8 +71,6 @@ class App extends Base {
             'daemonize' => Config::getInt('hyperswoole.daemonize', 1)
         ];
 
-        // 保存主进程id
-        file_put_contents('../log/hyperswoole.pid', getmypid());
         // 添加事件监听
         EventEmitter::addListener(new DbOperationProfiler);
         // 创建channel
