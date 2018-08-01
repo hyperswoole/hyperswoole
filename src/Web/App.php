@@ -36,10 +36,12 @@ class App extends Base {
             $errorHandler = new ErrorHandler();
             $errorHandler->setError($e);
             $errorHandler->handle();
+            $errorHandler->removeError();
         } catch (\Throwable $e) {
             $errorHandler = new ErrorHandler();
             $errorHandler->setError($e);
             $errorHandler->handle();
+            $errorHandler->removeError();
         }
         $this->requestEnd();
     }
@@ -54,10 +56,12 @@ class App extends Base {
                 $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
+                $errorHandler->removeError();
             } catch (\Throwable $e) {
                 $errorHandler = new ErrorHandler();
                 $errorHandler->setError($e);
                 $errorHandler->handle();
+                $errorHandler->removeError();
             }
             $this->requestEnd();
         });
@@ -73,8 +77,10 @@ class App extends Base {
 
         // 添加事件监听
         EventEmitter::addListener(new DbOperationProfiler);
+
         // 创建channel
-        $channel = new Coroutine\Channel(1000);
+        $capacity = Config::getInt('hyperswoole.mysql_channel_capacity', 10);
+        $channel  = new Coroutine\Channel($capacity);
         Registry::set('hyperswoole.mysql.channel', $channel);
 
         $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
@@ -130,7 +136,9 @@ class App extends Base {
         Registry::remove($responseKey);
         Registry::remove($dbEngineKey);
 
-        $this->setRouter(null);
+        if (isset($this->router[$coroutineId])) {
+            unset($this->router[$coroutineId]);
+        }
 
         $connectionCount = DbClient::getConnectionCount();
         $channel = Registry::get('hyperswoole.mysql.channel');
@@ -155,5 +163,28 @@ class App extends Base {
             );
         }
         return new $class($this);
+    }
+
+    public function getRouter() {
+        $coroutineId = Coroutine::getuid();
+        if (!isset($this->router[$coroutineId])) {
+            $configName = 'hyperframework.web.router_class';
+            $class = Config::getClass($configName);
+            if ($class === null) {
+                $class = 'Router';
+                $namespace = Config::getAppRootNamespace();
+                if ($namespace !== '' && $namespace !== '\\') {
+                    $class = NamespaceCombiner::combine($namespace, $class);
+                }
+                if (class_exists($class) === false) {
+                    throw new ClassNotFoundException(
+                        "Router class '$class' does not exist,"
+                            . " can be changed using config '$configName'."
+                    );
+                }
+            }
+            $this->router[$coroutineId] = new $class;
+        }
+        return $this->router[$coroutineId];
     }
 }

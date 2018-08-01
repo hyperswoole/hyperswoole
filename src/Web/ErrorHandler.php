@@ -4,6 +4,7 @@ namespace Hyperswoole\Web;
 use Hyperframework\Web\ErrorHandler as Base;
 
 class ErrorHandler extends Base {
+    private $error;
     private $hasHandled = false;
 
     /**
@@ -28,5 +29,31 @@ class ErrorHandler extends Base {
      */
     public function deleteOutput() {
         Response::setResponseData('');
+    }
+
+        /**
+     * @return object
+     */
+    public function getError() {
+        $coroutineId = Coroutine::getuid();
+        if (isset($this->error[$coroutineId])) {
+            return $this->error[$coroutineId];
+        }
+    }
+
+    /**
+     * @param object $error
+     * @return void
+     */
+    public function setError($error) {
+        $coroutineId = Coroutine::getuid();
+        $this->error[$coroutineId] = $error;
+    }
+
+    public function removeError() {
+        $coroutineId = Coroutine::getuid();
+        if (isset($this->error[$coroutineId])) {
+            unset($this->error[$coroutineId]);
+        }
     }
 }
