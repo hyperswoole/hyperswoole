@@ -2,13 +2,20 @@
 namespace Hyperswoole\Web;
 
 use Swoole\Coroutine;
+use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 
 class ResponseEngine {
     private $headers      = [];
-    private $statusCode   = [];
-    private $responseData = [];
+    private $statusCode   = 200;
+    private $responseData = '';
     private $cookie       = [];
+
+    private $swooleResponse;
+
+    public function __construct($swooleResponse) {
+        $this->swooleResponse = $swooleResponse;
+    }
 
     /**
      * @param string $string
@@ -19,8 +26,6 @@ class ResponseEngine {
     public function setHeader(
         $string, $shouldReplace = true, $responseCode = null
     ) {
-        $coroutineId = $this->getCoroutineId();
-
         if (strpos($string, ":") === false) {
             list($protocol, $statusCode, $message) = explode(' ', $string);
             return $this->setStatusCode($statusCode);
@@ -32,8 +37,7 @@ class ResponseEngine {
             $key = strtolower($key);
         }
 
-        $this->headers[$coroutineId][$key] = $value;
-
+        $this->headers[$key] = $value;
         if (!is_null($responseCode)) {
             $this->setStatusCode($responseCode);
         }
@@ -43,11 +47,7 @@ class ResponseEngine {
      * @return string[]
      */
     public function getHeaders() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->headers[$coroutineId])) {
-            return $this->headers[$coroutineId];            
-        }
-        return [];
+        return $this->headers;
     }
 
     /**
@@ -55,9 +55,8 @@ class ResponseEngine {
      * @return void
      */
     public function removeHeader($name) {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->headers[$coroutineId][$name])) {
-            unset($this->headers[$coroutineId][$name]);
+        if (isset($this->headers[$name])) {
+            unset($this->headers[$name]);
         }
     }
 
@@ -65,8 +64,7 @@ class ResponseEngine {
      * @return void
      */
     public function removeHeaders() {
-        $coroutineId = $this->getCoroutineId();
-        $this->headers[$coroutineId] = [];
+        $this->headers = [];
     }
 
     /**
@@ -74,32 +72,22 @@ class ResponseEngine {
      * @return void
      */
     public function setStatusCode($statusCode) {
-        $coroutineId = $this->getCoroutineId();
-        $this->statusCode[$coroutineId] = $statusCode;
+        $this->statusCode = $statusCode;
     }
 
     /**
      * @return int
      */
     public function getStatusCode() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->statusCode[$coroutineId])) {
-            return $this->statusCode[$coroutineId];            
-        }
-        return '200';
+        return $this->statusCode;
     }
 
     public function getResponseData() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->responseData[$coroutineId])) {
-            return $this->responseData[$coroutineId];            
-        }
-        return '';
+        return $this->responseData;
     }
 
     public function setResponseData($responseData) {
-        $coroutineId = $this->getCoroutineId();
-        $this->responseData[$coroutineId] = $responseData;
+        $this->responseData = $responseData;
     }
 
     /**
@@ -109,9 +97,7 @@ class ResponseEngine {
      * @return void
      */
     public function setCookie($name, $value, $options = []) {
-        $coroutineId = $this->getCoroutineId();
-
-        $cookie[$coroutineId][$name] = [
+        $this->cookie[$name] = [
             'value'   => $value,
             'options' => $options
         ];
@@ -122,30 +108,22 @@ class ResponseEngine {
     }
 
     public function write($data) {
-        $coroutineId = $this->getCoroutineId();
-        if (!isset($this->responseData[$coroutineId])) {
-            $this->responseData[$coroutineId] = '';
-        }
-
-        $this->responseData[$coroutineId] .= $data;
+        $this->responseData .= $data;
     }
 
     public function initializeHeaders() {
         $headers = $this->getHeaders();
         foreach ($headers as $key => $value) {
-            $this->getSwooleResponse()->header($key, $value, false);
+            $this->swooleResponse->header($key, $value, false);
         }
     }
 
     public function initializeStatusCode() {
-        $this->getSwooleResponse()->status($this->getStatusCode());
+        $this->swooleResponse->status($this->getStatusCode());
     }
 
     public function initializeCookie() {
-        $coroutineId   = $this->getCoroutineId();
-        $currentCookie = isset($this->cookie[$coroutineId]) ? $this->cookie[$coroutineId] : [];
-
-        foreach ($currentCookie as $name => $valueOptions) {
+        foreach ($this->cookie as $name => $valueOptions) {
             $expire   = 0;
             $path     = '/';
             $domain   = null;
@@ -180,12 +158,8 @@ class ResponseEngine {
                     }
                 }
             }
-            $this->getSwooleResponse()->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
+            $this->swooleResponse->cookie($name, $value, $expire, $path, $domain, $secure, $httpOnly);
         }
-    }
-
-    public function initializeResponseData() {
-        $this->getSwooleResponse()->write($this->getResponseData());
     }
 
     public function end() {
@@ -193,30 +167,6 @@ class ResponseEngine {
         $this->initializeStatusCode();
         $this->initializeCookie();
 
-        $this->getSwooleResponse()->end($this->getResponseData());
-    }
-
-    public function removeResponse() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->headers[$coroutineId])) {
-            unset($this->headers[$coroutineId]);            
-        }
-        if (isset($this->statusCode[$coroutineId])) {
-            unset($this->statusCode[$coroutineId]);            
-        }
-        if (isset($this->responseData[$coroutineId])) {
-            unset($this->responseData[$coroutineId]);            
-        }
-        if (isset($this->cookie[$coroutineId])) {
-            unset($this->cookie[$coroutineId]);            
-        }
-    }
-
-    private function getSwooleResponse() {
-        return Registry::get('hyperswoole.response_' . $this->getCoroutineId());
-    }
-
-    private function getCoroutineId() {
-        return Coroutine::getuid();
+        $this->swooleResponse->end($this->getResponseData());
     }
 }

@@ -101,8 +101,8 @@ class App extends Base {
 
     protected function requestStart($request, $response) {
         $coroutineId = Coroutine::getuid();
-        $requestKey  = 'hyperswoole.request_' . $coroutineId;
-        $responseKey = 'hyperswoole.response_' . $coroutineId;
+        $requestKey  = 'hyperswoole.web.request' . $coroutineId;
+        $responseKey = 'hyperswoole.web.response' . $coroutineId;
 
         Registry::set($requestKey, $request);
         Registry::set($responseKey, $response);
@@ -123,19 +123,20 @@ class App extends Base {
     }
 
     protected function requestEnd() {
-        $coroutineId = Coroutine::getuid();        
-        $requestKey  = 'hyperswoole.request_' . $coroutineId;
-        $responseKey = 'hyperswoole.response_' . $coroutineId;
-        $dbEngineKey = 'hyperswoole.db.client_engine_' . $coroutineId;
+        $coroutineId       = Coroutine::getuid();        
+        $requestKey        = 'hyperswoole.web.request' . $coroutineId;
+        $responseKey       = 'hyperswoole.web.response' . $coroutineId;
+        $dbEngineKey       = 'hyperswoole.db.client_engine' . $coroutineId;
+        $requestEngineKey  = 'hyperswoole.web.request_engine' . $coroutineId;
+        $responseEngineKey = 'hyperswoole.web.response_engine' . $coroutineId;
 
         Response::end();
-
-        Request::removeRequest();
-        Response::removeResponse();
 
         Registry::remove($requestKey);
         Registry::remove($responseKey);
         Registry::remove($dbEngineKey);
+        Registry::remove($requestEngineKey);
+        Registry::remove($responseEngineKey);
 
         if (isset($this->router[$coroutineId])) {
             unset($this->router[$coroutineId]);

@@ -56,7 +56,20 @@ class Response extends Base {
         static::getEngine()->end();
     }
 
+    /**
+     * @return void
+     */
     public static function removeResponse() {
         static::getEngine()->removeResponse();
+    }
+
+    /**
+     * @return ResponseEngine
+     */
+    public static function getEngine() {
+        return Registry::get('hyperswoole.web.response_engine' . Coroutine::getuid(), function() {
+            $swooleResponse = Registry::get('hyperswoole.web.response' . Coroutine::getuid());
+            return new ResponseEngine($swooleResponse);
+        });
     }
 }

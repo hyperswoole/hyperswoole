@@ -7,19 +7,24 @@ use Hyperframework\Common\Registry;
 
 class RequestEngine {
     private $bodyParams;
+    private $swooleRequest;
+
+    public function __construct($swooleRequest) {
+        $this->swooleRequest = $swooleRequest;
+    }
 
     /**
      * @return string
      */
     public function getMethod() {
-        return $this->getSwooleRequest()->server['request_method'];
+        return $this->swooleRequest->server['request_method'];
     }
 
     /**
      * @return string
      */
     public function getPath() {
-        $path = explode('?', $this->getSwooleRequest()->server['request_uri'], 2)[0];
+        $path = explode('?', $this->swooleRequest->server['request_uri'], 2)[0];
         if ($path === '') {
             $path = '/';
         } elseif (strpos($path, '//') !== false) {
@@ -33,7 +38,7 @@ class RequestEngine {
      * @return string
      */
     public function getDomain() {
-        return $this->getSwooleRequest()->server['http_host'];
+        return $this->swooleRequest->server['http_host'];
     }
 
     /**
@@ -58,26 +63,24 @@ class RequestEngine {
      * @return string[]
      */
     public function getHeaders() {
-        return $this->getSwooleRequest()->header;
+        return $this->swooleRequest->header;
     }
 
     /**
      * @return string
      */
     public function getBody() {
-        return $this->getSwooleRequest()->rawContent();
+        return $this->swooleRequest->rawContent();
     }
 
     /**
      * @return array
      */
     public function getBodyParams() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->bodyParams[$coroutineId])) {
-            return $this->bodyParams[$coroutineId];
+        if ($this->bodyParams === null) {
+            $this->initializeBodyParams();
         }
-        $this->initializeBodyParams();
-        return $this->bodyParams[$coroutineId];
+        return $this->bodyParams;
     }
 
     /**
@@ -102,7 +105,7 @@ class RequestEngine {
      * @return array
      */
     public function getQueryParams() {
-        return $this->getSwooleRequest()->get;
+        return $this->swooleRequest->get;
     }
 
     /**
@@ -145,8 +148,8 @@ class RequestEngine {
      * @return array
      */
     public function getCookieParams() {
-        if (isset(getSwooleRequest()->cookie)) {
-            return $this->getSwooleRequest()->cookie;            
+        if (isset($this->swooleRequest->cookie)) {
+            return $this->swooleRequest->cookie;            
         }
         return [];
     }
@@ -155,8 +158,7 @@ class RequestEngine {
      * @return void
      */
     private function initializeBodyParams() {
-        $coroutineId = $this->getCoroutineId();
-        $this->bodyParams[$coroutineId] = [];
+        $this->bodyParams = [];
         $contentType = $this->getHeader('content-type');
         if ($contentType === null) {
             $contentType = Config::getString(
@@ -171,15 +173,15 @@ class RequestEngine {
                 if ($contentType === 'application/x-www-form-urlencoded'
                     || $contentType === 'multipart/form-data'
                 ) {
-                    $this->bodyParams[$coroutineId] = $this->getSwooleRequest()->post;
+                    $this->bodyParams = $this->swooleRequest->post;
                     return;
                 }
             }
             if ($contentType === 'application/json') {
-                $this->bodyParams[$coroutineId] = json_decode(
+                $this->bodyParams = json_decode(
                     $this->getBody(), true, 512, JSON_BIGINT_AS_STRING
                 );
-                if ($this->bodyParams[$coroutineId] === null) {
+                if ($this->bodyParams === null) {
                     $errorMessage = 'The request body is not a valid json';
                     if (json_last_error() !== JSON_ERROR_NONE) {
                         $errorMessage .= ', ' . lcfirst(json_last_error_msg());
@@ -188,20 +190,5 @@ class RequestEngine {
                 }
             }
         }
-    }
-
-    public function removeRequest() {
-        $coroutineId = $this->getCoroutineId();
-        if (isset($this->bodyParams[$coroutineId])) {
-            unset($this->bodyParams[$coroutineId]);            
-        }
-    }
-
-    private function getSwooleRequest() {
-        return Registry::get('hyperswoole.request_' . Coroutine::getuid());
-    }
-
-    private function getCoroutineId() {
-        return Coroutine::getuid();
     }
 }

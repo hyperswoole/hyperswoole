@@ -14,7 +14,7 @@ class DbClient extends Base {
      * @return DbClientEngine
      */
     public static function getEngine() {
-        return Registry::get('hyperswoole.db.client_engine_' . Coroutine::getuid(), function() {
+        return Registry::get('hyperswoole.db.client_engine' . Coroutine::getuid(), function() {
             $class = Config::getClass(
                 'hyperswoole.db.client_engine_class', DbClientEngine::class
             );
