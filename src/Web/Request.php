@@ -1,6 +1,7 @@
 <?php
 namespace Hyperswoole\Web;
 
+use Swoole\Coroutine;
 use Hyperframework\Common\Registry;
 use Hyperframework\Web\Request as Base;
 
