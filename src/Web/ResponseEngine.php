@@ -26,7 +26,12 @@ class ResponseEngine {
             return $this->setStatusCode($statusCode);
         }
 
-        list($key, $value)   = explode(':', $string);
+        list($key, $value) = explode(':', $string);
+        $openHttp2Protocol = Config::getBool('hyperswoole.open_http2_protocol', false);
+        if ($openHttp2Protocol === true) {
+            $key = strtolower($key);
+        }
+
         $this->headers[$coroutineId][$key] = $value;
 
         if (!is_null($responseCode)) {

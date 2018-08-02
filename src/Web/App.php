@@ -7,6 +7,7 @@ use Hyperframework\Common\Config;
 use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;
 use Hyperframework\Db\DbOperationProfiler;
+use Hyperframework\Common\NamespaceCombiner;
 
 use Hyperframework\Web\App as Base;
 

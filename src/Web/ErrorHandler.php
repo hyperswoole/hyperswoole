@@ -1,6 +1,7 @@
 <?php
 namespace Hyperswoole\Web;
 
+use Swoole\Coroutine;
 use Hyperframework\Web\ErrorHandler as Base;
 
 class ErrorHandler extends Base {
@@ -31,7 +32,7 @@ class ErrorHandler extends Base {
         Response::setResponseData('');
     }
 
-        /**
+    /**
      * @return object
      */
     public function getError() {
