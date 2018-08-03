@@ -1,11 +1,11 @@
 <?php
 namespace HyperswooleTest\Controllers;
 
-use Hyperswoole\Db\DbClient;
+use Hyperswoole\Db\CoDbClient;
 
 class TestController extends BaseController {
 	public function onIndexAction() {
-		return DbClient::findRow("SELECT * FROM user");
+		return CoDbClient::findRow("SELECT * FROM user");
 	}
 
 	public function onIndex1Action() {

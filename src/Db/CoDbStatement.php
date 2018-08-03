@@ -7,7 +7,7 @@ use Throwable;
 use PDOStatement;
 use Hyperframework\Common\EventEmitter;
 
-class DbStatement {
+class CoDbStatement {
     private $pdoStatement;
     private $connection;
     private $params = [];

@@ -7,7 +7,7 @@ use Swoole\Coroutine\MySQL;
 use Hyperframework\Common\Registry;
 use Hyperframework\Common\EventEmitter;
 
-class DbConnection {
+class CoDbConnection {
     private $name;
     private $identifierQuotationMarks;
     private $swooleMysql;
@@ -29,7 +29,7 @@ class DbConnection {
     ) {
         $mysqlChannel = Registry::get('hyperswoole.mysql.channel');
         $mysqlChannel->push(1);
-        DbClient::incrConnectionCount();
+        CoDbClient::incrConnectionCount();
 
         $this->name = $name;
 
@@ -67,7 +67,7 @@ class DbConnection {
     public function prepare($sql, $driverOptions = []) {
         $this->prepareSql = $sql;
         $pdoStatement = $this->swooleMysql->prepare($sql);
-        return new DbStatement($pdoStatement, $this);
+        return new CoDbStatement($pdoStatement, $this);
     }
 
     /**

@@ -142,7 +142,7 @@ class App extends Base {
             unset($this->router[$coroutineId]);
         }
 
-        $connectionCount = DbClient::getConnectionCount();
+        $connectionCount = CoDbClient::getConnectionCount();
         $channel = Registry::get('hyperswoole.mysql.channel');
         for ($i = 0; $i < $connectionCount; $i++) {
             $channel->pop();

@@ -7,7 +7,7 @@ use Hyperframework\Common\Registry;
 use Hyperframework\Db\DbClientEngine;
 use Hyperframework\Db\DbClient as Base;
 
-class DbClient extends Base {
+class CoDbClient extends Base {
     private static $connectionCount;
 
     /**
